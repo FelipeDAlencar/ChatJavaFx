@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXScrollPane?>
+<?import com.jfoenix.controls.JFXTextArea?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<SplitPane dividerPositions="0.8567839195979899" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="400.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.ufrpe.chatjavafx.control.ControllerCliente">
+  <items>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="338.0" prefWidth="631.0">
+         <children>
+            <VBox prefHeight="328.0" prefWidth="600.0">
+               <children>
+                  <AnchorPane prefHeight="53.0" prefWidth="580.0">
+                     <children>
+                        <Label layoutX="275.0" layoutY="14.0" prefHeight="25.0" prefWidth="40.0" text="Chat" textOverrun="CENTER_WORD_ELLIPSIS">
+                           <font>
+                              <Font name="Segoe UI Light" size="16.0" />
+                           </font>
+                        </Label>
+                        <HBox alignment="CENTER" layoutX="195.0" layoutY="68.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="34.0" prefWidth="200.0">
+                           <children>
+                              <Label fx:id="lbDigitando">
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <Label fx:id="lbNome" contentDisplay="CENTER" layoutX="446.0" layoutY="14.0">
+                           <font>
+                              <Font name="Segoe UI Light" size="16.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+                  <JFXScrollPane>
+                     <children>
+                        <JFXTextArea fx:id="taTexto" editable="false" prefHeight="385.0" prefWidth="580.0" style="-fx-background-color: #c8c8c8;" />
+                     </children>
+                  </JFXScrollPane>
+                  <HBox prefHeight="100.0" prefWidth="200.0" />
+               </children>
+               <padding>
+                  <Insets left="10.0" right="10.0" />
+               </padding>
+            </VBox>
+            <Separator layoutX="614.0" layoutY="14.0" orientation="VERTICAL" prefHeight="319.0" prefWidth="6.0" />
+            <VBox alignment="TOP_CENTER" layoutX="634.0" layoutY="29.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="295.0" prefWidth="100.0">
+               <children>
+                  <Label text="Online" />
+                  <ListView fx:id="lvOlnine" prefHeight="253.0" prefWidth="100.0" />
+               </children>
+            </VBox>
+         </children></AnchorPane>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+         <children>
+            <HBox layoutY="-13.0" prefHeight="100.0" prefWidth="598.0" spacing="10.0" AnchorPane.bottomAnchor="13.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-13.0">
+               <children>
+                  <JFXTextField fx:id="tfMsg" prefHeight="25.0" prefWidth="395.0" promptText="Digite aqui..." />
+                  <JFXButton onAction="#acaoBtn" prefHeight="25.0" prefWidth="80.0" ripplerFill="#f4ff1b" style="-fx-background-color: #006400;" text="Enviar" textFill="WHITE">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></JFXButton>
+                  <JFXButton fx:id="btnSair" onAction="#acaoBtn" prefHeight="25.0" prefWidth="80.0" style="-fx-background-color: #800000;" text="Sair" textFill="WHITE">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></JFXButton>
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" top="20.0" />
+               </padding>
+            </HBox>
+         </children></AnchorPane>
+  </items>
+</SplitPane>

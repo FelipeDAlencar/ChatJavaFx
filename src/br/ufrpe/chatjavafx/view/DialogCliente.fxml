@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.ufrpe.chatjavafx.control.ControllerDialogCliente">
+   <children>
+      <Label text="Cliente">
+         <font>
+            <Font name="Segoe UI Light" size="16.0" />
+         </font>
+         <padding>
+            <Insets top="10.0" />
+         </padding>
+      </Label>
+      <JFXTextField fx:id="tfNome" promptText="Informe seu nome">
+         <padding>
+            <Insets top="20.0" />
+         </padding>
+      </JFXTextField>
+      <JFXTextField fx:id="tfIp" promptText="Informe o IP">
+         <padding>
+            <Insets top="20.0" />
+         </padding>
+      </JFXTextField>
+      <JFXTextField fx:id="tfPorta" promptText="Informe a porta de conexão">
+         <VBox.margin>
+            <Insets top="20.0" />
+         </VBox.margin>
+      </JFXTextField>
+      <JFXButton fx:id="btnConfirmar" onAction="#acaoBtnConfirmar" style="-fx-background-color: #006400;" text="Confirmar" textFill="WHITE">
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </JFXButton>
+   </children>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" />
+   </padding>
+</VBox>
