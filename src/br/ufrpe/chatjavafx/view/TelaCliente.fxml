@@ -56,10 +56,15 @@
                </padding>
             </VBox>
             <Separator layoutX="614.0" layoutY="14.0" orientation="VERTICAL" prefHeight="319.0" prefWidth="6.0" />
-            <VBox alignment="TOP_CENTER" layoutX="634.0" layoutY="29.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="295.0" prefWidth="100.0">
+            <VBox alignment="TOP_CENTER" layoutX="634.0" layoutY="29.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="295.0" prefWidth="100.0" spacing="10.0">
                <children>
                   <Label text="Online" />
                   <ListView fx:id="lvOlnine" prefHeight="253.0" prefWidth="100.0" />
+                  <JFXButton fx:id="btnPrivado" onAction="#acaoBtn" style="-fx-background-color: #5b859a;" text="Abrir privado" textFill="WHITE">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </JFXButton>
                </children>
             </VBox>
          </children></AnchorPane>

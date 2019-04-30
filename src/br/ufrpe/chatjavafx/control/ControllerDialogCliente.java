@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 
+import br.ufrpe.chatjavafx.model.Cliente;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,16 +37,14 @@ public class ControllerDialogCliente extends Application implements Initializabl
 	@FXML
 	private JFXButton btnConfirmar;
 
-	
-
 	private FXMLLoader loader;
 
 	private static Stage meuStage;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
-		
+		tfPorta.setText("12345");
+		tfIp.setText("127.0.0.1");
 	}
 
 	@FXML
@@ -79,7 +78,14 @@ public class ControllerDialogCliente extends Application implements Initializabl
 		controllerCliente.setNome(tfNome.getText());
 		controllerCliente.setPorta(tfPorta.getText());
 		controllerCliente.conectar();
-		meuStage.setIconified(true);
+		Cliente.controllerClientes.add(controllerCliente);
+
+		ObservableList<ControllerCliente>  observableList = FXCollections.observableArrayList(Cliente.controllerClientes);
+		
+		for(ControllerCliente controllerCliente2: Cliente.controllerClientes) {
+			controllerCliente2.getLvOlnine().setItems(observableList);
+		}
+		
 		Task<Void> taskEscutar = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
@@ -90,6 +96,7 @@ public class ControllerDialogCliente extends Application implements Initializabl
 		Thread threadEscutar = new Thread(taskEscutar);
 		threadEscutar.setDaemon(true);
 		threadEscutar.start();
+		meuStage.setIconified(true);
 
 		// primaryStage.initStyle(StageStyle.UNDECORATED);
 		stage.show();
@@ -122,5 +129,6 @@ public class ControllerDialogCliente extends Application implements Initializabl
 	public Stage getMeuStage() {
 		return meuStage;
 	}
+	
 
 }

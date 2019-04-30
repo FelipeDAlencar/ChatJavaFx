@@ -17,6 +17,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 
+import br.ufrpe.chatjavafx.model.Cliente;
 import br.ufrpe.chatjavafx.model.Servidor;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -49,7 +50,10 @@ public class ControllerCliente extends Application implements Initializable {
 	private JFXButton btnSair;
 
 	@FXML
-	private ListView<String> lvOlnine;
+	private JFXButton btnPrivado;
+
+	@FXML
+	private ListView<ControllerCliente> lvOlnine;
 
 	@FXML
 	private Label lbNome;
@@ -62,15 +66,18 @@ public class ControllerCliente extends Application implements Initializable {
 	private Socket socket;
 	private OutputStream ou;
 	private Writer ouw;
+	private BufferedReader bfr;
 	private static FXMLLoader loader;
 	private Task<Void> taskDigitando;
 	private Thread threadDigitando;
 	private String nome, ip, porta;
+	private ControllerCliente controllerClientePrivado;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		ObservableList<String> itens = FXCollections.observableArrayList("Daniela", "Felipe", "Clecio", "Mael");
-		lvOlnine.setItems(itens);
+
+		lvOlnine.getSelectionModel().selectedItemProperty()
+				.addListener((observable, oldValue, newValue) -> selecionouDoTv(newValue));
 
 		tfMsg.setOnKeyPressed((evt) -> {
 			if (evt.getCode() == KeyCode.ENTER) {
@@ -92,6 +99,12 @@ public class ControllerCliente extends Application implements Initializable {
 
 	}
 
+	private void selecionouDoTv(ControllerCliente controllerCliente) {
+		if (controllerCliente != null) {
+			controllerClientePrivado = controllerCliente;
+		}
+	}
+
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		loader = new FXMLLoader();
@@ -102,7 +115,6 @@ public class ControllerCliente extends Application implements Initializable {
 		// primaryStage.initStyle(StageStyle.UNDECORATED);
 		meuStage = primaryStage;
 		primaryStage.show();
-		ControllerCliente controllerCliente = loader.getController();
 
 	}
 
@@ -110,8 +122,51 @@ public class ControllerCliente extends Application implements Initializable {
 	void acaoBtn(ActionEvent event) {
 		if (event.getSource() == btnSair) {
 			meuStage.close();
+		} else if (event.getSource() == btnPrivado) {
+			exibirTelaCliente();
+
 		} else {
 			enviarMensagem(nome + ": " + tfMsg.getText());
+		}
+	}
+
+	public void exibirTelaCliente() {
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/TelaCliente.fxml"));
+			Parent root = loader.load();
+			Stage stage = new Stage();
+			Scene scene = new Scene(root);
+			stage.setScene(scene);
+
+			FXMLLoader loader2 = new FXMLLoader();
+			loader2.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/TelaCliente.fxml"));
+			Parent root2 = loader2.load();
+			Stage stage2 = new Stage();
+			Scene scene2 = new Scene(root2);
+			stage2.setScene(scene2);
+
+			loader2.setController(controllerClientePrivado);
+
+			controllerClientePrivado.conectar();
+
+			Task<Void> taskEscutar = new Task<Void>() {
+				@Override
+				protected Void call() throws Exception {
+					controllerClientePrivado.escutar();
+					escutar();
+					return null;
+				}
+			};
+			Thread threadEscutar = new Thread(taskEscutar);
+			threadEscutar.setDaemon(true);
+			threadEscutar.start();
+			meuStage.setIconified(true);
+
+			// primaryStage.initStyle(StageStyle.UNDECORATED);
+			stage.show();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -122,7 +177,12 @@ public class ControllerCliente extends Application implements Initializable {
 		ouw = new OutputStreamWriter(ou);
 		bfw = new BufferedWriter(ouw);
 		Servidor.clientes.add(bfw);
+		lbNome.setText(nome);
 		bfw.write(nome + "\r\n");
+		InputStream in = socket.getInputStream();
+		InputStreamReader inr = new InputStreamReader(in);
+		bfr = new BufferedReader(inr);
+
 		bfw.flush();
 	}
 
@@ -144,14 +204,14 @@ public class ControllerCliente extends Application implements Initializable {
 
 				});
 				return null;
-				
+
 			}
 		};
 
 		Thread thread = new Thread(taskAtualizar);
 		thread.setDaemon(true);
 		thread.start();
-		
+
 		taskAtualizar = null;
 		System.gc();
 	}
@@ -183,12 +243,8 @@ public class ControllerCliente extends Application implements Initializable {
 
 	public void escutar() throws IOException {
 
-		InputStream in = socket.getInputStream();
-		InputStreamReader inr = new InputStreamReader(in);
-		BufferedReader bfr = new BufferedReader(inr);
 		String msg = "";
 		while (true) {
-
 			if (bfr.ready()) {
 				msg = bfr.readLine();
 				if (msg.equals("Sair") || msg.equals("sair")) {
@@ -218,6 +274,11 @@ public class ControllerCliente extends Application implements Initializable {
 		socket.close();
 	}
 
+	@Override
+	public String toString() {
+		return nome;
+	}
+
 	public static void main(String[] args) {
 		launch(args);
 
@@ -245,6 +306,18 @@ public class ControllerCliente extends Application implements Initializable {
 
 	public void setPorta(String porta) {
 		this.porta = porta;
+	}
+
+	public ListView<ControllerCliente> getLvOlnine() {
+		return lvOlnine;
+	}
+
+	public BufferedWriter getBfw() {
+		return bfw;
+	}
+
+	public BufferedReader getBfr() {
+		return bfr;
 	}
 
 }
