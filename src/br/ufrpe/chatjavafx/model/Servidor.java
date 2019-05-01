@@ -12,11 +12,17 @@ import java.io.Writer;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+
+import br.ufrpe.chatjavafx.view.Alerta;
+import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class Servidor extends Thread {
 
@@ -53,9 +59,9 @@ public class Servidor extends Thread {
 		}
 
 	}
-
+	
+	
 	public void run() {
-		System.out.println("RUN");
 		try {
 
 			String msgCompleta;
@@ -72,9 +78,14 @@ public class Servidor extends Thread {
 
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-
+		} catch (SocketException e) {
+			Alerta alerta = Alerta.getInstace(Alert.AlertType.WARNING);
+			alerta.alertar(Alert.AlertType.WARNING, "Atenção", "Alguém foi desconectado", "Atenção");
+		
+			
+		} catch (IOException e) {
+			Alerta alerta = Alerta.getInstace(Alert.AlertType.WARNING);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Erro ao carregar arquivo", "Atenção");
 		}
 	}
 

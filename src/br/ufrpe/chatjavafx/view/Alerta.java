@@ -1,28 +1,31 @@
 package br.ufrpe.chatjavafx.view;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
-public class Alerta {
+public class Alerta extends Alert {
 
-	private static Alerta alerta;
-	private static Alert alert;
+	 private static Alerta alert;
 
-	public static Alerta getInstace() {
-		if (!(alerta != null)) {
-			alert = new Alert(null);
-			alerta = new Alerta();
-			return alerta;
-		}
-		return alerta;
-	}
+	    public static Alerta getInstace(AlertType tipo) {
+	        if (alert == null) {
+	            return alert = new Alerta(tipo);
+	        }
 
-	public void alertar(AlertType tipo, String titulo, String conteudo, String cabecalho) {
+	        return alert;
+	    }
 
-		alert.setAlertType(AlertType.INFORMATION);
-		alert.setTitle(titulo);
-		alert.setContentText(conteudo);
-		alert.setHeaderText(cabecalho);
-		alert.show();
-	}
+	    private Alerta(AlertType alertType) {
+	        super(alertType);
+	    }
+
+	    public void alertar(AlertType tipo, String titulo, String cabecalho, String conteudo ) {
+	        alert.setAlertType(tipo);
+	        alert.setTitle(titulo);
+	        alert.setHeaderText(cabecalho);
+	        alert.setContentText(conteudo);
+	        alert.showAndWait();
+	    }
 }

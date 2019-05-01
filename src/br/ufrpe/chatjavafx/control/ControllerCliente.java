@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import com.jfoenix.controls.JFXButton;
@@ -60,40 +61,34 @@ public class ControllerCliente extends Application implements Initializable {
 
 	private static Stage meuStage = null;
 
-	private BufferedWriter bfw;
-	public static final String DIGITANDO = "--digitando--";
-	public static final String NAO_DIGITANDO = "--nao_digitando--";
-	private Socket socket;
-	private OutputStream ou;
-	private Writer ouw;
-	private BufferedReader bfr;
-	private static FXMLLoader loader;
-	private Task<Void> taskDigitando;
-	private Thread threadDigitando;
+	private Cliente cliente;
 	private String nome, ip, porta;
 	private ControllerCliente controllerClientePrivado;
+	private static FXMLLoader loader;
+
+	public static ArrayList<ControllerCliente> controllerClientes = new ArrayList<>();
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-
+		cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
 		lvOlnine.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> selecionouDoTv(newValue));
 
 		tfMsg.setOnKeyPressed((evt) -> {
 			if (evt.getCode() == KeyCode.ENTER) {
 
-				enviarMensagem(nome + ": " + tfMsg.getText());
+				cliente.enviarMensagem(nome + ": " + tfMsg.getText());
 
 			} else {
 
-				enviarMensagem(DIGITANDO);
+				cliente.enviarMensagem(Cliente.DIGITANDO);
 
 			}
 		});
 
 		tfMsg.setOnKeyReleased((evt) -> {
 
-			enviarMensagem(NAO_DIGITANDO);
+			cliente.enviarMensagem(Cliente.NAO_DIGITANDO);
 
 		});
 
@@ -126,7 +121,7 @@ public class ControllerCliente extends Application implements Initializable {
 			exibirTelaCliente();
 
 		} else {
-			enviarMensagem(nome + ": " + tfMsg.getText());
+			cliente.enviarMensagem(nome + ": " + tfMsg.getText());
 		}
 	}
 
@@ -139,6 +134,9 @@ public class ControllerCliente extends Application implements Initializable {
 			Scene scene = new Scene(root);
 			stage.setScene(scene);
 
+			ControllerCliente meuControllerCliente = loader.getController();
+			meuControllerCliente.getLbNome().setText(nome);
+
 			FXMLLoader loader2 = new FXMLLoader();
 			loader2.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/TelaCliente.fxml"));
 			Parent root2 = loader2.load();
@@ -147,132 +145,41 @@ public class ControllerCliente extends Application implements Initializable {
 			stage2.setScene(scene2);
 
 			loader2.setController(controllerClientePrivado);
+			controllerClientePrivado.getLbNome().setText(controllerClientePrivado.getNome());
+			System.out.println(cliente.getBfw());
 
-			controllerClientePrivado.conectar();
+			cliente.conectar();
+			lbNome.setText(nome);
 
 			Task<Void> taskEscutar = new Task<Void>() {
 				@Override
 				protected Void call() throws Exception {
-					controllerClientePrivado.escutar();
-					escutar();
+					cliente.escutar();
+					cliente.escutar();
 					return null;
 				}
 			};
 			Thread threadEscutar = new Thread(taskEscutar);
 			threadEscutar.setDaemon(true);
 			threadEscutar.start();
-			meuStage.setIconified(true);
 
-			// primaryStage.initStyle(StageStyle.UNDECORATED);
 			stage.show();
+			stage2.show();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void conectar() throws IOException {
-
-		socket = new Socket(ip, Integer.parseInt(porta));
-		ou = socket.getOutputStream();
-		ouw = new OutputStreamWriter(ou);
-		bfw = new BufferedWriter(ouw);
-		Servidor.clientes.add(bfw);
-		lbNome.setText(nome);
-		bfw.write(nome + "\r\n");
-		InputStream in = socket.getInputStream();
-		InputStreamReader inr = new InputStreamReader(in);
-		bfr = new BufferedReader(inr);
-
-		bfw.flush();
-	}
-
-	public void atualizarDigitando(String situacao) {
-		Task<Void> taskAtualizar = new Task<Void>() {
-			@Override
-			protected Void call() throws Exception {
-				Platform.runLater(new Runnable() {
-
-					@Override
-					public void run() {
-
-						if (situacao.equals(DIGITANDO)) {
-							lbDigitando.setText(nome + " está digitando");
-						} else {
-							lbDigitando.setText("");
-						}
-					}
-
-				});
-				return null;
-
-			}
-		};
-
-		Thread thread = new Thread(taskAtualizar);
-		thread.setDaemon(true);
-		thread.start();
-
-		taskAtualizar = null;
-		System.gc();
-	}
-
-	public void enviarMensagem(String msg) {
-		try {
-			if (msg.equals("Sair") || msg.equals("sair")) {
-				bfw.write("Desconectado \r\n");
-				taTexto.appendText("Desconectado \r\n");
-			} else {
-
-				if (msg.equals(DIGITANDO) || msg.equals(NAO_DIGITANDO)) {
-					bfw.write(msg + "\r\n");
-				} else {
-					bfw.write(msg + "\r\n");
-					taTexto.appendText(nome + ": " + tfMsg.getText() + "\r\n");
-					tfMsg.setText("");
-				}
-
-				System.out.println(msg);
-
-			}
-			bfw.flush();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void escutar() throws IOException {
-
-		String msg = "";
-		while (true) {
-			if (bfr.ready()) {
-				msg = bfr.readLine();
-				if (msg.equals("Sair") || msg.equals("sair")) {
-					taTexto.appendText("Servidor caiu! \r\n");
-				} else {
-					if (msg.contains(DIGITANDO)) {
-						atualizarDigitando(DIGITANDO);
-					} else if (msg.contains(NAO_DIGITANDO)) {
-						atualizarDigitando(NAO_DIGITANDO);
-					} else {
-						taTexto.appendText(msg + "\r\n");
-					}
-
-				}
-
-			}
-		}
-
-	}
-
 	public void sair() throws IOException {
 
-		enviarMensagem("Sair");
-		bfw.close();
-		ouw.close();
-		ou.close();
-		socket.close();
+		cliente.enviarMensagem("Sair");
+		cliente.getBfw().close();
+		cliente.getOuw().close();
+		cliente.getOu().close();
+		cliente.getSocket().close();
 	}
+
+
 
 	@Override
 	public String toString() {
@@ -312,12 +219,17 @@ public class ControllerCliente extends Application implements Initializable {
 		return lvOlnine;
 	}
 
-	public BufferedWriter getBfw() {
-		return bfw;
+	public Label getLbNome() {
+		return lbNome;
 	}
 
-	public BufferedReader getBfr() {
-		return bfr;
+	public Cliente getCliente() {
+		return cliente;
+	}
+	
+	
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
 	}
 
 }

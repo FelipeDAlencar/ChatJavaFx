@@ -32,6 +32,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 public class ControllerServidor extends Application implements Initializable {
@@ -46,16 +47,19 @@ public class ControllerServidor extends Application implements Initializable {
 	private static Stage meuStage;
 	private static ArrayList<BufferedWriter> clientes;
 	private static ServerSocket server;
-	private String nome;
-	private Socket con;
-	private InputStream in;
-	private InputStreamReader inr;
-	private BufferedReader bfr;
 	private FXMLLoader loader;
+	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		System.out.println("Init");
+		tfPorta.setText("12345");
+
+		tfPorta.setOnKeyPressed((evt) -> {
+			if (evt.getCode() == KeyCode.ENTER) {
+				estabelecerConecxao();
+			}
+		});
 	}
 
 	@Override
@@ -71,13 +75,13 @@ public class ControllerServidor extends Application implements Initializable {
 
 	}
 
-	@FXML
-	void acaoBtnConfirmar(ActionEvent event) {
+	public void estabelecerConecxao() {
 		try {
 			tfPorta.setEditable(false);
 			server = new ServerSocket(Integer.parseInt(tfPorta.getText()));
-			alerta = Alerta.getInstace();
-			alerta.alertar(AlertType.INFORMATION, "Conexão" , "Server concetado", "Server conectado a porta " + tfPorta.getText());
+			alerta = Alerta.getInstace(Alert.AlertType.NONE);
+			alerta.alertar(AlertType.INFORMATION, "Conexão", "Server concetado",
+					"Server conectado a porta " + tfPorta.getText());
 			meuStage.setIconified(true);
 			Task<Void> teste = new Task<Void>() {
 				@Override
@@ -89,7 +93,7 @@ public class ControllerServidor extends Application implements Initializable {
 						Thread t = new Servidor(con, server);
 						t.setDaemon(true);
 						t.start();
-						
+
 					}
 				}
 
@@ -102,6 +106,12 @@ public class ControllerServidor extends Application implements Initializable {
 
 			e.printStackTrace();
 		}
+
+	}
+
+	@FXML
+	void acaoBtnConfirmar(ActionEvent event) {
+		estabelecerConecxao();
 	}
 
 	public static void main(String[] args) {
