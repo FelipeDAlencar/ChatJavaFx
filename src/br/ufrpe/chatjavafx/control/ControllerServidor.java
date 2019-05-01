@@ -45,14 +45,12 @@ public class ControllerServidor extends Application implements Initializable {
 
 	private Alerta alerta;
 	private static Stage meuStage;
-	private static ArrayList<BufferedWriter> clientes;
 	private static ServerSocket server;
 	private FXMLLoader loader;
 	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		System.out.println("Init");
 		tfPorta.setText("12345");
 
 		tfPorta.setOnKeyPressed((evt) -> {
@@ -69,7 +67,6 @@ public class ControllerServidor extends Application implements Initializable {
 		Parent root = loader.load();
 		Scene scene = new Scene(root);
 		primaryStage.setScene(scene);
-		// primaryStage.initStyle(StageStyle.UNDECORATED);
 		meuStage = primaryStage;
 		primaryStage.show();
 
@@ -102,9 +99,14 @@ public class ControllerServidor extends Application implements Initializable {
 			t.setDaemon(true);
 			t.start();
 
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
+			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Informe um número inválido!");
+			tfPorta.setEditable(true);
 
-			e.printStackTrace();
+		} catch (IOException e) {
+			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Erro ao tentar carregar arquivo!");
 		}
 
 	}

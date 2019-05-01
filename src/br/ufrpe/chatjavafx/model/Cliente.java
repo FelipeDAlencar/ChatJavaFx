@@ -12,12 +12,14 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import br.ufrpe.chatjavafx.control.ControllerCliente;
+import br.ufrpe.chatjavafx.view.Alerta;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 
 public class Cliente {
 	private BufferedWriter bfw;
@@ -32,17 +34,16 @@ public class Cliente {
 	private String ip, nome, porta;
 	@FXML
 	private Label lbNome;
-	
+
 	@FXML
 	private TextArea taTexto;
-	
+
 	@FXML
 	private TextField tfMsg;
-	
+
 	@FXML
 	private Label lbDigitando;
-	
-	
+
 	public Cliente(Label lbNome, Label lbDigitando, TextArea taTexto, TextField tfmsg) {
 		this.lbNome = lbNome;
 		this.lbDigitando = lbDigitando;
@@ -50,19 +51,31 @@ public class Cliente {
 		this.tfMsg = tfmsg;
 	}
 
-	public void conectar() throws IOException {
+	public void conectar()  {
 
-		socket = new Socket(ip, Integer.parseInt(porta));
-		ou = socket.getOutputStream();
-		ouw = new OutputStreamWriter(ou);
-		bfw = new BufferedWriter(ouw);
-		Servidor.clientes.add(bfw);
-		bfw.write(nome + "\r\n");
-		InputStream in = socket.getInputStream();
-		InputStreamReader inr = new InputStreamReader(in);
-		bfr = new BufferedReader(inr);
-		lbNome.setText(nome);
-		bfw.flush();
+		try {
+			socket = new Socket(ip, Integer.parseInt(porta));
+			ou = socket.getOutputStream();
+			ouw = new OutputStreamWriter(ou);
+			bfw = new BufferedWriter(ouw);
+			Servidor.clientes.add(bfw);
+			bfw.write(nome + "\r\n");
+			InputStream in = socket.getInputStream();
+			InputStreamReader inr = new InputStreamReader(in);
+			bfr = new BufferedReader(inr);
+			lbNome.setText(nome);
+			bfw.flush();
+			
+			escutar();
+		} catch (NumberFormatException e) {
+			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Informe um número inválido!");
+
+		} catch (IOException e) {
+			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Erro ao tentar carregar arquivo!");
+		}
+	
 	}
 
 	public void enviarMensagem(String msg) {
@@ -85,8 +98,9 @@ public class Cliente {
 			}
 			bfw.flush();
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			Alerta alerta = Alerta.getInstace(AlertType.NONE);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar o arquivo!");
 		}
 	}
 
@@ -122,25 +136,33 @@ public class Cliente {
 
 	public void escutar() throws IOException {
 
-		String msg = "";
-		while (true) {
-			if (bfr.ready()) {
-				msg = bfr.readLine();
-				if (msg.equals("Sair") || msg.equals("sair")) {
-					taTexto.appendText("Servidor caiu! \r\n");
-				} else {
-					if (msg.contains(DIGITANDO)) {
-						atualizarDigitando(DIGITANDO);
-					} else if (msg.contains(NAO_DIGITANDO)) {
-						atualizarDigitando(NAO_DIGITANDO);
-					} else {
-						taTexto.appendText(msg + "\r\n");
+		Task<Void> taskEscutar = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				String msg = "";
+				while (true) {
+					if (bfr.ready()) {
+						msg = bfr.readLine();
+						if (msg.equals("Sair") || msg.equals("sair")) {
+							taTexto.appendText("Servidor caiu! \r\n");
+						} else {
+							if (msg.contains(DIGITANDO)) {
+								atualizarDigitando(DIGITANDO);
+							} else if (msg.contains(NAO_DIGITANDO)) {
+								atualizarDigitando(NAO_DIGITANDO);
+							} else {
+								taTexto.appendText(msg + "\r\n");
+							}
+
+						}
+
 					}
-
 				}
-
 			}
-		}
+		};
+		Thread threadEscutar = new Thread(taskEscutar);
+		threadEscutar.setDaemon(true);
+		threadEscutar.start();
 
 	}
 
@@ -171,8 +193,6 @@ public class Cliente {
 	public Thread getThreadDigitando() {
 		return threadDigitando;
 	}
-
-	
 
 	public String getPorta() {
 		return porta;
@@ -209,9 +229,5 @@ public class Cliente {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
-	
-
-
 
 }

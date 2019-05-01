@@ -1,6 +1,5 @@
 package br.ufrpe.chatjavafx.model;
 
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -27,28 +26,26 @@ import javafx.scene.control.Alert.AlertType;
 public class Servidor extends Thread {
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
-//	private static ServerSocket server;
+	// private static ServerSocket server;
 	private String nome;
 	private Socket con;
 	private InputStream in;
 	private InputStreamReader inr;
 	private BufferedReader bfr;
 
-	
 	public Servidor(Socket con, ServerSocket server) throws NumberFormatException, IOException {
 
-		//server = new ServerSocket(Integer.parseInt("12345"));
-		System.out.println("Aqui" +  server);
+		// server = new ServerSocket(Integer.parseInt("12345"));
+		System.out.println("Aqui" + server);
 		InetAddress inet = server.getInetAddress();
 
 		System.out.println("Endereço do host " + inet.getHostAddress());
 		System.out.println("Nome do Host " + inet.getHostName());
 		System.out.println("Porta:" + server.getLocalPort());
 		System.out.println("\n" + server.toString());
-		
-		//clientes = new ArrayList<BufferedWriter>();
-		
-		
+
+		// clientes = new ArrayList<BufferedWriter>();
+
 		this.con = con;
 		try {
 			in = con.getInputStream();
@@ -59,8 +56,7 @@ public class Servidor extends Thread {
 		}
 
 	}
-	
-	
+
 	public void run() {
 		try {
 
@@ -69,7 +65,6 @@ public class Servidor extends Thread {
 			Writer ouw = new OutputStreamWriter(ou);
 			BufferedWriter bfw = new BufferedWriter(ouw);
 			clientes.add(bfw);
-			System.out.println(clientes);
 			nome = msgCompleta = bfr.readLine();
 
 			while (!"Sair".equalsIgnoreCase(msgCompleta) && msgCompleta != null) {
@@ -81,46 +76,48 @@ public class Servidor extends Thread {
 		} catch (SocketException e) {
 			Alerta alerta = Alerta.getInstace(Alert.AlertType.WARNING);
 			alerta.alertar(Alert.AlertType.WARNING, "Atenção", "Alguém foi desconectado", "Atenção");
-		
-			
+
 		} catch (IOException e) {
 			Alerta alerta = Alerta.getInstace(Alert.AlertType.WARNING);
 			alerta.alertar(AlertType.WARNING, "Atenção", "Erro ao carregar arquivo", "Atenção");
 		}
 	}
 
-	public void sendToAll(BufferedWriter bwSaida, String msg) throws IOException {
-		BufferedWriter bwS;
-		System.out.println(clientes);
-		for (BufferedWriter bw : clientes) {
-			bwS = (BufferedWriter) bw;
-			if (!(bwSaida == bwS)) {
-				System.out.println(msg);
+	public void sendToAll(BufferedWriter bwSaida, String msg) {
+		try {
+			BufferedWriter bwS;
+			for (BufferedWriter bw : clientes) {
+				bwS = (BufferedWriter) bw;
+				if (!(bwSaida == bwS)) {
+					System.out.println(msg);
 
-				bw.write(msg + "\r\n");
+					bw.write(msg + "\r\n");
 
-				bw.flush();
+					bw.flush();
+				}
+
 			}
-
+		} catch (IOException e) {
+			Alerta alerta = Alerta.getInstace(AlertType.NONE);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar o arquivo!");
 		}
 	}
 
-
 	public static void main(String[] args) {
 
-//		try {
-//
-//			while (true) {
-//				System.out.println("Aguardando conexão...");
-//				Socket con = server.accept();
-//				System.out.println("Cliente conectado...");
-//				Thread t = new Servidor(con);
-//				t.start();
-//			}
-//
-//		} catch (Exception e) {
-//
-//			e.printStackTrace();
-//		}
+		// try {
+		//
+		// while (true) {
+		// System.out.println("Aguardando conexão...");
+		// Socket con = server.accept();
+		// System.out.println("Cliente conectado...");
+		// Thread t = new Servidor(con);
+		// t.start();
+		// }
+		//
+		// } catch (Exception e) {
+		//
+		// e.printStackTrace();
+		// }
 	}
 }

@@ -22,10 +22,14 @@ public class Alerta extends Alert {
 	    }
 
 	    public void alertar(AlertType tipo, String titulo, String cabecalho, String conteudo ) {
-	        alert.setAlertType(tipo);
-	        alert.setTitle(titulo);
-	        alert.setHeaderText(cabecalho);
-	        alert.setContentText(conteudo);
-	        alert.showAndWait();
+	        Platform.runLater(()->{
+	        	
+	        	alert.setAlertType(tipo);
+		        alert.setTitle(titulo);
+		        alert.setHeaderText(cabecalho);
+		        alert.setContentText(conteudo);
+		        alert.showAndWait();
+		        
+	        });
 	    }
 }

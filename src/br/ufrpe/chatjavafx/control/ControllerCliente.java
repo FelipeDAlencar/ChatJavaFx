@@ -59,7 +59,8 @@ public class ControllerCliente extends Application implements Initializable {
 	@FXML
 	private Label lbNome;
 
-	private static Stage meuStage = null;
+	@FXML
+	private Stage meuStage;
 
 	private Cliente cliente;
 	private String nome, ip, porta;
@@ -109,14 +110,14 @@ public class ControllerCliente extends Application implements Initializable {
 		primaryStage.setScene(scene);
 		// primaryStage.initStyle(StageStyle.UNDECORATED);
 		meuStage = primaryStage;
-		primaryStage.show();
+		meuStage.show();
 
 	}
 
 	@FXML
 	void acaoBtn(ActionEvent event) {
 		if (event.getSource() == btnSair) {
-			meuStage.close();
+			System.exit(0);
 		} else if (event.getSource() == btnPrivado) {
 			exibirTelaCliente();
 
@@ -126,48 +127,7 @@ public class ControllerCliente extends Application implements Initializable {
 	}
 
 	public void exibirTelaCliente() {
-		try {
-			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/TelaCliente.fxml"));
-			Parent root = loader.load();
-			Stage stage = new Stage();
-			Scene scene = new Scene(root);
-			stage.setScene(scene);
-
-			ControllerCliente meuControllerCliente = loader.getController();
-			meuControllerCliente.getLbNome().setText(nome);
-
-			FXMLLoader loader2 = new FXMLLoader();
-			loader2.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/TelaCliente.fxml"));
-			Parent root2 = loader2.load();
-			Stage stage2 = new Stage();
-			Scene scene2 = new Scene(root2);
-			stage2.setScene(scene2);
-
-			loader2.setController(controllerClientePrivado);
-			controllerClientePrivado.getLbNome().setText(controllerClientePrivado.getNome());
-			System.out.println(cliente.getBfw());
-
-			cliente.conectar();
-			lbNome.setText(nome);
-
-			Task<Void> taskEscutar = new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					cliente.escutar();
-					cliente.escutar();
-					return null;
-				}
-			};
-			Thread threadEscutar = new Thread(taskEscutar);
-			threadEscutar.setDaemon(true);
-			threadEscutar.start();
-
-			stage.show();
-			stage2.show();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	
 	}
 
 	public void sair() throws IOException {
@@ -178,8 +138,6 @@ public class ControllerCliente extends Application implements Initializable {
 		cliente.getOu().close();
 		cliente.getSocket().close();
 	}
-
-
 
 	@Override
 	public String toString() {
@@ -226,8 +184,7 @@ public class ControllerCliente extends Application implements Initializable {
 	public Cliente getCliente() {
 		return cliente;
 	}
-	
-	
+
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}

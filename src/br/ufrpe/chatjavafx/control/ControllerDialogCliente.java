@@ -89,7 +89,6 @@ public class ControllerDialogCliente extends Application implements Initializabl
 		Parent root = loader.load();
 		scene = new Scene(root);
 		primaryStage.setScene(scene);
-		// primaryStage.initStyle(StageStyle.UNDECORATED);
 		meuStage = primaryStage;
 
 		primaryStage.show();
@@ -126,16 +125,6 @@ public class ControllerDialogCliente extends Application implements Initializabl
 				controllerCliente2.getLvOlnine().setItems(observableList);
 			}
 
-			Task<Void> taskEscutar = new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					controllerCliente.getCliente().escutar();
-					return null;
-				}
-			};
-			Thread threadEscutar = new Thread(taskEscutar);
-			threadEscutar.setDaemon(true);
-			threadEscutar.start();
 			meuStage.setIconified(true);
 
 			// primaryStage.initStyle(StageStyle.UNDECORATED);
