@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -51,7 +52,15 @@ public class Cliente {
 		this.tfMsg = tfmsg;
 	}
 
-	public void conectar()  {
+	public Cliente(Label lbNome, Label lbDigitando, TextArea taTexto, TextField tfmsg, Socket socket) {
+		this.socket = socket;
+		this.lbNome = lbNome;
+		this.lbDigitando = lbDigitando;
+		this.taTexto = taTexto;
+		this.tfMsg = tfmsg;
+	}
+
+	public void conectar() {
 
 		try {
 			socket = new Socket(ip, Integer.parseInt(porta));
@@ -63,10 +72,13 @@ public class Cliente {
 			InputStream in = socket.getInputStream();
 			InputStreamReader inr = new InputStreamReader(in);
 			bfr = new BufferedReader(inr);
-			lbNome.setText(nome);
+			lbNome.setText(getNome());
+			System.out.println(getNome());
 			bfw.flush();
-			
+
 			escutar();
+			
+			System.out.println("Conectou");
 		} catch (NumberFormatException e) {
 			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
 			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Informe um número inválido!");
@@ -75,7 +87,7 @@ public class Cliente {
 			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
 			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Erro ao tentar carregar arquivo!");
 		}
-	
+
 	}
 
 	public void enviarMensagem(String msg) {
@@ -85,11 +97,11 @@ public class Cliente {
 				taTexto.appendText("Desconectado \r\n");
 			} else {
 
-				if (msg.equals(DIGITANDO) || msg.equals(NAO_DIGITANDO)) {
+				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO)) {
 					bfw.write(msg + "\r\n");
 				} else {
 					bfw.write(msg + "\r\n");
-					taTexto.appendText(nome + ": " + tfMsg.getText() + "\r\n");
+					taTexto.appendText(getNome() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
 				}
 
@@ -113,8 +125,9 @@ public class Cliente {
 					@Override
 					public void run() {
 
-						if (situacao.equals(Cliente.DIGITANDO)) {
-							lbDigitando.setText(nome + " está digitando");
+						if (situacao.contains(Cliente.DIGITANDO)) {
+							System.out.println("Metodo" + situacao);
+							lbDigitando.setText(situacao.split(" ")[1] +  " está digitando");
 						} else {
 							lbDigitando.setText("");
 						}
@@ -147,7 +160,7 @@ public class Cliente {
 							taTexto.appendText("Servidor caiu! \r\n");
 						} else {
 							if (msg.contains(DIGITANDO)) {
-								atualizarDigitando(DIGITANDO);
+								atualizarDigitando(msg);
 							} else if (msg.contains(NAO_DIGITANDO)) {
 								atualizarDigitando(NAO_DIGITANDO);
 							} else {

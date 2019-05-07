@@ -114,13 +114,13 @@ public class ControllerDialogCliente extends Application implements Initializabl
 			controllerCliente.getCliente().setIp(tfIp.getText());
 			controllerCliente.getCliente().setPorta(tfPorta.getText());
 			controllerCliente.getCliente().setNome(tfNome.getText());
-
+			System.out.println(controllerCliente.getCliente().getNome());
 			controllerCliente.getCliente().conectar();
+			
+			
 			ControllerCliente.controllerClientes.add(controllerCliente);
-
 			ObservableList<ControllerCliente> observableList = FXCollections
 					.observableArrayList(ControllerCliente.controllerClientes);
-
 			for (ControllerCliente controllerCliente2 : ControllerCliente.controllerClientes) {
 				controllerCliente2.getLvOlnine().setItems(observableList);
 			}

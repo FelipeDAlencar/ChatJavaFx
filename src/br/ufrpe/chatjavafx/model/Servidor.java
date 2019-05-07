@@ -36,7 +36,6 @@ public class Servidor extends Thread {
 	public Servidor(Socket con, ServerSocket server) throws NumberFormatException, IOException {
 
 		// server = new ServerSocket(Integer.parseInt("12345"));
-		System.out.println("Aqui" + server);
 		InetAddress inet = server.getInetAddress();
 
 		System.out.println("Endereço do host " + inet.getHostAddress());
