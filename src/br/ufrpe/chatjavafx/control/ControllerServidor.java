@@ -1,26 +1,21 @@
 package br.ufrpe.chatjavafx.control;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-import javax.swing.JOptionPane;
+import javax.persistence.EntityManager;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 
+import br.ufrpe.chatjavafx.jpa.ConnectionFactory;
 import br.ufrpe.chatjavafx.model.Servidor;
+import br.ufrpe.chatjavafx.model.Usuario;
+import br.ufrpe.chatjavafx.model.dao.DAOUsuario;
 import br.ufrpe.chatjavafx.view.Alerta;
 import javafx.application.Application;
 import javafx.concurrent.Task;
@@ -41,21 +36,34 @@ public class ControllerServidor extends Application implements Initializable {
 	@FXML
 	private JFXButton btnConfirmar;
 
+	@FXML
+	private JFXTextField tfLogin;
+
+	@FXML
+	private JFXPasswordField tfSenha;
+
+	@FXML
+	private JFXPasswordField tfConfirmarSenha;
+
+	@FXML
+	private JFXButton btnCadastrar;
+
 	public static String porta = "";
 
 	private Alerta alerta;
 	private static Stage meuStage;
 	private static ServerSocket server;
 	private FXMLLoader loader;
-	
+	private DAOUsuario daoUsuario;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		daoUsuario = DAOUsuario.getInstance();
 		tfPorta.setText("12345");
 
 		tfPorta.setOnKeyPressed((evt) -> {
 			if (evt.getCode() == KeyCode.ENTER) {
-				estabelecerConecxao();
+				estabelecerConexao();
 			}
 		});
 	}
@@ -72,7 +80,7 @@ public class ControllerServidor extends Application implements Initializable {
 
 	}
 
-	public void estabelecerConecxao() {
+	public void estabelecerConexao() {
 		try {
 			tfPorta.setEditable(false);
 			server = new ServerSocket(Integer.parseInt(tfPorta.getText()));
@@ -113,7 +121,31 @@ public class ControllerServidor extends Application implements Initializable {
 
 	@FXML
 	void acaoBtnConfirmar(ActionEvent event) {
-		estabelecerConecxao();
+		estabelecerConexao();
+	}
+
+	@FXML
+	void acaoBtnCadastrar(ActionEvent event) {
+		Usuario usuario = new Usuario();
+		usuario.setLogin(tfLogin.getText());
+		usuario.setSenha(tfSenha.getText());
+
+		if (tfSenha.getText().equals(tfConfirmarSenha.getText())) {
+			if (!(daoUsuario.buscarLoginIgual(usuario) != null)) {
+				daoUsuario.salvar(usuario);
+				Alerta alerta = Alerta.getInstace(null);
+				alerta.alertar(AlertType.WARNING, "Sucesso", "Usuário cadastrado com sucesso.",
+						"Usuário foi cadastrado com sucesso, pronto para o uso.");
+			} else {
+				Alerta alerta = Alerta.getInstace(null);
+				alerta.alertar(AlertType.WARNING, "Usuário já existente", "Usuário já existente",
+						"Por favor, insira um novo login. Este login já existe.");
+			}
+		} else {
+			Alerta alerta = Alerta.getInstace(null);
+			alerta.alertar(AlertType.WARNING, "Senhas incompativeis", "Senhas não correspondem",
+					"Por favor, garanta" + "que as senhas sejam iguais");
+		}
 	}
 
 	public static void main(String[] args) {

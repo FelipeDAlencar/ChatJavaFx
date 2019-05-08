@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 import javax.sound.midi.ControllerEventListener;
@@ -15,9 +16,15 @@ import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 
 import br.ufrpe.chatjavafx.model.Cliente;
+import br.ufrpe.chatjavafx.model.ComunicacaoPrivada;
 import br.ufrpe.chatjavafx.model.Servidor;
+import br.ufrpe.chatjavafx.model.Usuario;
+import br.ufrpe.chatjavafx.model.dao.DAOUsuario;
 import br.ufrpe.chatjavafx.view.Alerta;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -49,31 +56,30 @@ public class ControllerCliente extends Application implements Initializable {
 	private JFXButton btnPrivado;
 
 	@FXML
-	private ListView<ControllerCliente> lvOlnine;
+	private ListView<Usuario> lvOlnine;
 
 	@FXML
 	private Label lbNome;
 
 	@FXML
 	private Stage meuStage;
-	
 
-    @FXML
-    private JFXTabPane tabPane;
-    
-    
+	@FXML
+	private JFXTabPane tabPane;
 
 	private Cliente cliente;
 	private String nome, ip, porta;
 	private ControllerCliente controllerClientePrivado;
 	private static FXMLLoader loader;
-
+	private ServerSocket serverSocket;
+	private int portaPrivada;
 	public static ArrayList<ControllerCliente> controllerClientes = new ArrayList<>();
-
+	private DAOUsuario daoUsuario;
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
-		
+		daoUsuario = DAOUsuario.getInstance();
+
 		lvOlnine.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> selecionouDoTv(newValue));
 
@@ -94,12 +100,32 @@ public class ControllerCliente extends Application implements Initializable {
 			cliente.enviarMensagem(Cliente.NAO_DIGITANDO);
 
 		});
+		
+		
+		Task<Void> task = new Task<Void>() {
+			
+			@Override
+			protected Void call() throws Exception {
+				
+				while(true) {
+					ObservableList<Usuario> observableList = FXCollections.observableArrayList(daoUsuario.buscarLogados());
+
+					for (ControllerCliente controllerCliente2 : ControllerCliente.controllerClientes) {
+						controllerCliente2.getLvOlnine().setItems(observableList);
+					}
+					Thread.sleep(1000);
+				}
+			}
+		};
+		Thread thread = new Thread(task);
+		thread.setDaemon(true);
+		thread.start();
 
 	}
 
-	private void selecionouDoTv(ControllerCliente controllerCliente) {
-		if (controllerCliente != null) {
-			controllerClientePrivado = controllerCliente;
+	private void selecionouDoTv(Usuario usuario) {
+		if (usuario != null) {
+			
 		}
 	}
 
@@ -130,50 +156,45 @@ public class ControllerCliente extends Application implements Initializable {
 
 	public void novaTab() {
 		try {
-			Tab tab =  new Tab(controllerClientePrivado.getNome());
+			Tab tab = new Tab(controllerClientePrivado.getNome());
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
-			Parent root = loader.load();			
+			Parent root = loader.load();
 			tab.setContent(root);
 			tabPane.getTabs().addAll(tab);
 			tabPane.getSelectionModel().select(tab);
 			
-			ServerSocket serverSocket =  new ServerSocket(123);
-			
-			
+
+
 			ControllerPrivado controllerPrivado1 = loader.getController();
 			controllerPrivado1.getCliente().setIp(ip);
-			controllerPrivado1.getCliente().setPorta("123");
-			controllerPrivado1.getCliente().conectar();
-			
-			
+			controllerPrivado1.getCliente().setPorta(portaPrivada + "");
+
 			FXMLLoader loader2 = new FXMLLoader();
 			loader2.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
 			Parent outro = loader2.load();
 			Tab tabOutro = new Tab(getNome());
 			tabOutro.setContent(outro);
 			ControllerPrivado controllerPrivado = loader2.getController();
+			
 			controllerClientePrivado.getTabPane().getTabs().add(tabOutro);
 			controllerClientePrivado.getTabPane().getSelectionModel().select(tabOutro);
 			
-			
 			controllerPrivado.getCliente().setIp(ip);
-			controllerPrivado.getCliente().setPorta("123");
+			controllerPrivado.getCliente().setPorta(portaPrivada + "");
+			
+			controllerPrivado1.getCliente().conectar();
 			controllerPrivado.getCliente().conectar();
 			
-			
-			
-		
-			
-			
-		}catch (IOException e) {
+			ComunicacaoPrivada.privados.add(controllerPrivado1.getCliente().getBfw());
+			ComunicacaoPrivada.privados.add(controllerPrivado.getCliente().getBfw());
+
+		} catch (IOException e) {
 			Alerta alerta = Alerta.getInstace(null);
 			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar arquivo!");
 			e.printStackTrace();
 		}
-		
 
-	
 	}
 
 	public void sair() throws IOException {
@@ -219,7 +240,7 @@ public class ControllerCliente extends Application implements Initializable {
 		this.porta = porta;
 	}
 
-	public ListView<ControllerCliente> getLvOlnine() {
+	public ListView<Usuario> getLvOlnine() {
 		return lvOlnine;
 	}
 
@@ -237,6 +258,14 @@ public class ControllerCliente extends Application implements Initializable {
 
 	public JFXTabPane getTabPane() {
 		return tabPane;
+	}
+
+	public int getPortaPrivada() {
+		return portaPrivada;
+	}
+
+	public void setPortaPrivada(int portaPrivada) {
+		this.portaPrivada = portaPrivada;
 	}
 	
 

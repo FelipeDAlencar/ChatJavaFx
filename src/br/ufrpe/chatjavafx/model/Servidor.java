@@ -32,7 +32,7 @@ public class Servidor extends Thread {
 	private InputStream in;
 	private InputStreamReader inr;
 	private BufferedReader bfr;
-
+	
 	public Servidor(Socket con, ServerSocket server) throws NumberFormatException, IOException {
 
 		// server = new ServerSocket(Integer.parseInt("12345"));
@@ -68,7 +68,7 @@ public class Servidor extends Thread {
 
 			while (!"Sair".equalsIgnoreCase(msgCompleta) && msgCompleta != null) {
 				msgCompleta = bfr.readLine();
-				sendToAll(bfw, msgCompleta);
+				send(bfw, msgCompleta);
 
 			}
 
@@ -82,7 +82,7 @@ public class Servidor extends Thread {
 		}
 	}
 
-	public void sendToAll(BufferedWriter bwSaida, String msg) {
+	public void send(BufferedWriter bwSaida, String msg) {
 		try {
 			BufferedWriter bwS;
 			for (BufferedWriter bw : clientes) {

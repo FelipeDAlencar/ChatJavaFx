@@ -67,7 +67,6 @@ public class Cliente {
 			ou = socket.getOutputStream();
 			ouw = new OutputStreamWriter(ou);
 			bfw = new BufferedWriter(ouw);
-			Servidor.clientes.add(bfw);
 			bfw.write(nome + "\r\n");
 			InputStream in = socket.getInputStream();
 			InputStreamReader inr = new InputStreamReader(in);
