@@ -26,6 +26,8 @@ public class Cliente {
 	private BufferedWriter bfw;
 	public static final String DIGITANDO = "--digitando--";
 	public static final String NAO_DIGITANDO = "--nao_digitando--";
+	private static final String LOGANDO = "--LOGANDO--";
+	private static final String SUCESSO = "--SUCESSO--";
 	private Socket socket;
 	private OutputStream ou;
 	private Writer ouw;
@@ -33,9 +35,10 @@ public class Cliente {
 	private Task<Void> taskDigitando;
 	private Thread threadDigitando;
 	private String ip, nome, porta;
+	private boolean logado;
 	@FXML
 	private Label lbNome;
-
+	
 	@FXML
 	private TextArea taTexto;
 
@@ -44,6 +47,8 @@ public class Cliente {
 
 	@FXML
 	private Label lbDigitando;
+	
+
 
 	public Cliente(Label lbNome, Label lbDigitando, TextArea taTexto, TextField tfmsg) {
 		this.lbNome = lbNome;
@@ -52,18 +57,14 @@ public class Cliente {
 		this.tfMsg = tfmsg;
 	}
 
-	public Cliente(Label lbNome, Label lbDigitando, TextArea taTexto, TextField tfmsg, Socket socket) {
-		this.socket = socket;
-		this.lbNome = lbNome;
-		this.lbDigitando = lbDigitando;
-		this.taTexto = taTexto;
-		this.tfMsg = tfmsg;
+	public Cliente() {
+	
 	}
 
 	public void conectar() {
 
 		try {
-			socket = new Socket(ip, Integer.parseInt(porta));
+			socket = new Socket(ip, 12345);
 			ou = socket.getOutputStream();
 			ouw = new OutputStreamWriter(ou);
 			bfw = new BufferedWriter(ouw);
@@ -71,7 +72,7 @@ public class Cliente {
 			InputStream in = socket.getInputStream();
 			InputStreamReader inr = new InputStreamReader(in);
 			bfr = new BufferedReader(inr);
-			lbNome.setText(getNome());
+			//lbNome.setText(getNome());
 			System.out.println(getNome());
 			bfw.flush();
 
@@ -96,9 +97,9 @@ public class Cliente {
 				taTexto.appendText("Desconectado \r\n");
 			} else {
 
-				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO)) {
+				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)) {
 					bfw.write(msg + "\r\n");
-				} else {
+				}else {
 					bfw.write(msg + "\r\n");
 					taTexto.appendText(getNome() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
@@ -153,7 +154,9 @@ public class Cliente {
 			protected Void call() throws Exception {
 				String msg = "";
 				while (true) {
+					
 					if (bfr.ready()) {
+						System.out.println("aQUI");
 						msg = bfr.readLine();
 						if (msg.equals("Sair") || msg.equals("sair")) {
 							taTexto.appendText("Servidor caiu! \r\n");
@@ -162,7 +165,10 @@ public class Cliente {
 								atualizarDigitando(msg);
 							} else if (msg.contains(NAO_DIGITANDO)) {
 								atualizarDigitando(NAO_DIGITANDO);
-							} else {
+							}else if(msg.contains(SUCESSO)) {
+								System.out.println("Logou");
+								logado = true;
+							}else {
 								taTexto.appendText(msg + "\r\n");
 							}
 
@@ -174,6 +180,7 @@ public class Cliente {
 		};
 		Thread threadEscutar = new Thread(taskEscutar);
 		threadEscutar.setDaemon(true);
+		threadEscutar.setPriority(7);
 		threadEscutar.start();
 
 	}
@@ -241,5 +248,47 @@ public class Cliente {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
+
+	public Label getLbNome() {
+		return lbNome;
+	}
+
+	public void setLbNome(Label lbNome) {
+		this.lbNome = lbNome;
+	}
+
+	public TextArea getTaTexto() {
+		return taTexto;
+	}
+
+	public void setTaTexto(TextArea taTexto) {
+		this.taTexto = taTexto;
+	}
+
+	public TextField getTfMsg() {
+		return tfMsg;
+	}
+
+	public void setTfMsg(TextField tfMsg) {
+		this.tfMsg = tfMsg;
+	}
+
+	public Label getLbDigitando() {
+		return lbDigitando;
+	}
+
+	public void setLbDigitando(Label lbDigitando) {
+		this.lbDigitando = lbDigitando;
+	}
+
+	public boolean isLogado() {
+		return logado;
+	}
+
+	public void setLogado(boolean logado) {
+		this.logado = logado;
+	}
+	
+	
 
 }

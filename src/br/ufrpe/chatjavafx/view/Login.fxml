@@ -16,9 +16,14 @@
             <Font name="Segoe UI Light" size="18.0" />
          </font>
       </Label>
+      <JFXTextField fx:id="tfIp" promptText="IP">
+         <VBox.margin>
+            <Insets left="40.0" right="40.0" top="60.0" />
+         </VBox.margin>
+      </JFXTextField>
       <JFXTextField fx:id="tfLogin" promptText="Login">
          <VBox.margin>
-            <Insets bottom="20.0" left="40.0" right="40.0" top="100.0" />
+            <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
          </VBox.margin>
       </JFXTextField>
       <JFXPasswordField fx:id="tfSenha" promptText="Senha">
@@ -26,7 +31,7 @@
             <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
          </VBox.margin>
       </JFXPasswordField>
-      <JFXButton fx:id="btnEntrar" onAction="#AcaoBtnEntrar" ripplerFill="#dfeb02" style="-fx-background-color: #006400;" text="Entrar" textFill="#ededed">
+      <JFXButton fx:id="btnEntrar" onAction="#AcaoBtnEntrar" prefHeight="53.0" prefWidth="66.0" ripplerFill="#dfeb02" style="-fx-background-color: #006400;" text="Entrar" textFill="#ededed">
          <VBox.margin>
             <Insets top="20.0" />
          </VBox.margin>

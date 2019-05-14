@@ -18,12 +18,16 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import br.ufrpe.chatjavafx.model.dao.DAOUsuario;
 import br.ufrpe.chatjavafx.view.Alerta;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 public class Servidor extends Thread {
+
+	private static final String LOGANDO = "--LOGANDO--";
+	private static final String SUCESSO = "--SUCESSO--";
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 	// private static ServerSocket server;
@@ -32,9 +36,10 @@ public class Servidor extends Thread {
 	private InputStream in;
 	private InputStreamReader inr;
 	private BufferedReader bfr;
-	
-	public Servidor(Socket con, ServerSocket server) throws NumberFormatException, IOException {
+	private DAOUsuario daoUsuario;
 
+	public Servidor(Socket con, ServerSocket server) throws NumberFormatException, IOException {
+		daoUsuario = DAOUsuario.getInstance();
 		// server = new ServerSocket(Integer.parseInt("12345"));
 		InetAddress inet = server.getInetAddress();
 
@@ -68,7 +73,18 @@ public class Servidor extends Thread {
 
 			while (!"Sair".equalsIgnoreCase(msgCompleta) && msgCompleta != null) {
 				msgCompleta = bfr.readLine();
-				send(bfw, msgCompleta);
+
+				if (msgCompleta.contains(LOGANDO)) {
+					Usuario usuario = new Usuario(msgCompleta.split(" ")[0], msgCompleta.split(" ")[1]);
+
+					if (daoUsuario.buscarLogin(usuario) != null) {
+						sendLogin(bfw, msgCompleta + " " + SUCESSO);
+					}
+
+				}else {
+					send(bfw, msgCompleta);
+				}
+				
 
 			}
 
@@ -101,7 +117,20 @@ public class Servidor extends Thread {
 			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar o arquivo!");
 		}
 	}
+	
 
+	public void sendLogin(BufferedWriter bwSaida, String msg) {
+		try {
+
+			System.out.println(msg);
+			bwSaida.write(msg + "\r\n");
+			bwSaida.flush();
+
+		} catch (IOException e) {
+			Alerta alerta = Alerta.getInstace(AlertType.NONE);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar o arquivo!");
+		}
+	}
 	public static void main(String[] args) {
 
 		// try {

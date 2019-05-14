@@ -74,11 +74,11 @@ public class ControllerCliente extends Application implements Initializable {
 	private ServerSocket serverSocket;
 	private int portaPrivada;
 	public static ArrayList<ControllerCliente> controllerClientes = new ArrayList<>();
-	private DAOUsuario daoUsuario;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
-		daoUsuario = DAOUsuario.getInstance();
+	
 
 		lvOlnine.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> selecionouDoTv(newValue));
@@ -102,24 +102,6 @@ public class ControllerCliente extends Application implements Initializable {
 		});
 		
 		
-		Task<Void> task = new Task<Void>() {
-			
-			@Override
-			protected Void call() throws Exception {
-				
-				while(true) {
-					ObservableList<Usuario> observableList = FXCollections.observableArrayList(daoUsuario.buscarLogados());
-
-					for (ControllerCliente controllerCliente2 : ControllerCliente.controllerClientes) {
-						controllerCliente2.getLvOlnine().setItems(observableList);
-					}
-					Thread.sleep(1000);
-				}
-			}
-		};
-		Thread thread = new Thread(task);
-		thread.setDaemon(true);
-		thread.start();
 
 	}
 
@@ -254,6 +236,10 @@ public class ControllerCliente extends Application implements Initializable {
 
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
+		cliente.setLbNome(lbNome);
+		cliente.setTaTexto(taTexto);
+		cliente.setLbDigitando(lbDigitando);
+		cliente.setTfMsg(tfMsg);
 	}
 
 	public JFXTabPane getTabPane() {
