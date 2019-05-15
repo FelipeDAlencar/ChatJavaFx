@@ -37,7 +37,7 @@ public class Cliente {
 	private static final String ENTROU_NA_SALA = "--ENTROU--";
 	public static final String MSG_PRIVADA = "MSG_PRIVADA";
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
-	
+
 	private Socket socket;
 	private OutputStream ou;
 	private Writer ouw;
@@ -117,7 +117,11 @@ public class Cliente {
 						if (msg.equals("Sair") || msg.equals("sair")) {
 							taTexto.appendText("Servidor caiu! \r\n");
 						} else {
-							if (msg.contains(DIGITANDO)) {
+							if (msg.contains(MSG_PRIVADA) && msg.contains(DIGITANDO)) {
+								atualizarDigitandoPrivado(msg);
+							} else if (msg.contains(MSG_PRIVADA) && msg.contains(NAO_DIGITANDO)) {
+								atualizarDigitandoPrivado(msg);
+							} else if (msg.contains(DIGITANDO)) {
 								atualizarDigitando(msg);
 							} else if (msg.contains(NAO_DIGITANDO)) {
 								atualizarDigitando(NAO_DIGITANDO);
@@ -140,16 +144,13 @@ public class Cliente {
 
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
 								lvOlnine.setItems(ob);
-							} else if (msg.contains(MSG_PRIVADA) && msg.contains(DIGITANDO)
-									|| msg.contains(NAO_DIGITANDO)) {
-
 							} else if (msg.contains(MSG_PRIVADA)) {
 								msg = msg.replace(MSG_PRIVADA, "");
 								msg = msg.replace(msg.split("-")[1], "");
 								msg = msg.replaceAll("-", "");
 								meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(msg + "\r\n");
-								
-							} else if (msg.contains(REQUISITAR_PRIVADO)){
+
+							} else if (msg.contains(REQUISITAR_PRIVADO)) {
 								String minhaMsg = msg;
 								Task<Void> taskAtualizar = new Task<Void>() {
 									@Override
@@ -165,28 +166,31 @@ public class Cliente {
 													String nomeTab = minhaMsg.split("-")[2];
 													Tab tab = new Tab(nomeTab);
 													FXMLLoader loader = new FXMLLoader();
-													loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
+													loader.setLocation(getClass()
+															.getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
 													Parent root;
 													root = loader.load();
 													tab.setContent(root);
 													meuControllerCliente.getTabPane().getTabs().add(tab);
 													meuControllerCliente.getTabPane().getSelectionModel().select(tab);
-													
 
-
-													meuControllerCliente.setControllerPrivado1(loader.getController()) ;
-													meuControllerCliente.getControllerPrivado1().setCliente(meuControllerCliente.getCliente());
-													meuControllerCliente.getControllerPrivado1().setClienteDestino(nomeTab);
+													meuControllerCliente.setControllerPrivado1(loader.getController());
+													meuControllerCliente.getControllerPrivado1()
+															.setCliente(meuControllerCliente.getCliente());
+													meuControllerCliente.getControllerPrivado1()
+															.setClienteDestino(nomeTab);
 													meuControllerCliente.getControllerPrivado1().setNome(nome);
-													
-													//cliente.enviarMensagem(nome + "-" + " Privado:" + " - " + clienteTabela + " - "  + REQUISITAR_PRIVADO  );
-													meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(minhaMsg + "\r\n");
-													
+
+													// cliente.enviarMensagem(nome + "-" + " Privado:" + " - " +
+													// clienteTabela + " - " + REQUISITAR_PRIVADO );
+													meuControllerCliente.getControllerPrivado1().getTaTexto()
+															.appendText(minhaMsg + "\r\n");
+
 												} catch (IOException e) {
 													// TODO Auto-generated catch block
 													e.printStackTrace();
 												}
-												
+
 											}
 
 										});
@@ -199,7 +203,7 @@ public class Cliente {
 								thread.setDaemon(true);
 								thread.start();
 
-							}else {
+							} else {
 								taTexto.appendText(msg + "\r\n");
 							}
 
@@ -223,16 +227,17 @@ public class Cliente {
 				taTexto.appendText("Desconectado \r\n");
 			} else {
 
-				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO) || msg.contains(REQUISITAR_PRIVADO) ) {
+				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)
+						|| msg.contains(REQUISITAR_PRIVADO)) {
 					bfw.write(msg + "\r\n");
-				}else if(msg.contains(MSG_PRIVADA)) {
+				} else if (msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");
 					msg = msg.replace(MSG_PRIVADA, "");
 					msg = msg.replace(msg.split("-")[1], "");
 					msg = msg.replaceAll("-", "");
 					meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(msg + "\r\n");
-					
-				}else {
+
+				} else {
 					bfw.write(msg + "\r\n");
 					taTexto.appendText(getNome() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
@@ -262,6 +267,37 @@ public class Cliente {
 							lbDigitando.setText(situacao.split(" ")[1] + " está digitando");
 						} else {
 							lbDigitando.setText("");
+						}
+					}
+
+				});
+				return null;
+
+			}
+		};
+
+		Thread thread = new Thread(taskAtualizar);
+		thread.setDaemon(true);
+		thread.start();
+
+		taskAtualizar = null;
+		System.gc();
+	}
+
+	public void atualizarDigitandoPrivado(String situacao) {
+		Task<Void> taskAtualizar = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+
+						if (situacao.contains(DIGITANDO)) {
+							meuControllerCliente.getControllerPrivado1().getLbDigitando()
+									.setText(situacao.split("-")[2] + " está digitando");
+						} else {
+							meuControllerCliente.getControllerPrivado1().getLbDigitando().setText("");
 						}
 					}
 

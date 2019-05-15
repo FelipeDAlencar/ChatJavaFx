@@ -53,14 +53,14 @@ public class ControllerPrivado implements Initializable {
 
 			} else {
 
-				cliente.enviarMensagem(DIGITANDO + " - " + ClienteDestino + " - " + MSG_PRIVADA);
+				cliente.enviarMensagem(MSG_PRIVADA + " - " + ClienteDestino + " - " + nome  + " - " + " - " + DIGITANDO );
 
 			}
 		});
 
 		tfMsg.setOnKeyReleased((evt) -> {
 
-			cliente.enviarMensagem(NAO_DIGITANDO + " - " + ClienteDestino + " - " + MSG_PRIVADA);
+			cliente.enviarMensagem(MSG_PRIVADA + " - " + ClienteDestino  + " - " + " - " + NAO_DIGITANDO );
 
 		});
 	}

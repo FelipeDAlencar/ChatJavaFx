@@ -105,14 +105,19 @@ public class Servidor extends Thread {
 
 				}else if(msgCompleta.contains(MSG_PRIVADA)){
 					String clienteDestinarario = msgCompleta.split("-")[1];
-					System.out.println(clienteDestinarario.trim());
+					
+					for(String i: msgCompleta.split("-")) {
+						System.out.println("split " + i );
+					}
+					System.out.println("Destino " + clienteDestinarario.trim());
+					
 					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
 					System.out.println("BFW" + bfwDestinario);
 					sendPrivado(bfwDestinario, msgCompleta);
 					
 				}else if (msgCompleta.contains(REQUISITAR_PRIVADO)){
 					String clienteDestinarario = msgCompleta.split("-")[0];
-					System.out.println(clienteDestinarario.trim());
+					System.out.println(clienteDestinarario);
 					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
 					System.out.println("BFW 2" + bfwDestinario);
 					sendPrivado(bfwDestinario, msgCompleta);
