@@ -15,9 +15,12 @@ import java.util.ArrayList;
 import br.ufrpe.chatjavafx.control.ControllerCliente;
 import br.ufrpe.chatjavafx.view.Alerta;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
@@ -28,6 +31,9 @@ public class Cliente {
 	public static final String NAO_DIGITANDO = "--nao_digitando--";
 	private static final String LOGANDO = "--LOGANDO--";
 	private static final String SUCESSO = "--SUCESSO--";
+	private static final String ENTROU_NA_SALA = "--ENTROU--";
+	public static final String MSG_PRIVADA = "MSG_PRIVADA";
+
 	private Socket socket;
 	private OutputStream ou;
 	private Writer ouw;
@@ -38,7 +44,7 @@ public class Cliente {
 	private boolean logado;
 	@FXML
 	private Label lbNome;
-	
+
 	@FXML
 	private TextArea taTexto;
 
@@ -48,7 +54,9 @@ public class Cliente {
 	@FXML
 	private Label lbDigitando;
 	
-
+	
+	@FXML
+	private ListView<String> lvOlnine;
 
 	public Cliente(Label lbNome, Label lbDigitando, TextArea taTexto, TextField tfmsg) {
 		this.lbNome = lbNome;
@@ -58,7 +66,7 @@ public class Cliente {
 	}
 
 	public Cliente() {
-	
+
 	}
 
 	public void conectar() {
@@ -72,12 +80,12 @@ public class Cliente {
 			InputStream in = socket.getInputStream();
 			InputStreamReader inr = new InputStreamReader(in);
 			bfr = new BufferedReader(inr);
-			//lbNome.setText(getNome());
+			// lbNome.setText(getNome());
 			System.out.println(getNome());
 			bfw.flush();
 
 			escutar();
-			
+
 			System.out.println("Conectou");
 		} catch (NumberFormatException e) {
 			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
@@ -89,7 +97,64 @@ public class Cliente {
 		}
 
 	}
+	public void escutar() throws IOException {
 
+		Task<Void> taskEscutar = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				String msg = "";
+				while (true) {
+
+					if (bfr.ready()) {
+						System.out.println("aQUI");
+						msg = bfr.readLine();
+						if (msg.equals("Sair") || msg.equals("sair")) {
+							taTexto.appendText("Servidor caiu! \r\n");
+						} else {
+							if (msg.contains(DIGITANDO)) {
+								atualizarDigitando(msg);
+							} else if (msg.contains(NAO_DIGITANDO)) {
+								atualizarDigitando(NAO_DIGITANDO);
+							} else if (msg.contains(SUCESSO) && msg.contains(ENTROU_NA_SALA)) {
+								msg = msg.replace(LOGANDO, "");
+								msg = msg.replace(SUCESSO, "");
+								msg = msg.replace(ENTROU_NA_SALA, "");
+								msg = msg.replace("\n", "");
+								
+								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
+								lvOlnine.setItems(ob);
+								
+								logado = true;
+							} else if (msg.contains(ENTROU_NA_SALA)) {
+								System.out.println("Entrou");
+								msg = msg.replace(LOGANDO, "");
+								msg = msg.replace(SUCESSO, "");
+								msg = msg.replace(ENTROU_NA_SALA, "");
+								msg = msg.replace("\n", "");
+								
+								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
+								lvOlnine.setItems(ob);
+								
+							//} //else if (msg.contains(MSG_PRIVADA)) {
+								
+								
+							}else {
+								taTexto.appendText(msg + "\r\n");
+							}
+
+						}
+
+					}
+				}
+			}
+		};
+		Thread threadEscutar = new Thread(taskEscutar);
+		threadEscutar.setDaemon(true);
+		threadEscutar.setPriority(7);
+		threadEscutar.start();
+
+	}
+	
 	public void enviarMensagem(String msg) {
 		try {
 			if (msg.equals("Sair") || msg.equals("sair")) {
@@ -97,9 +162,9 @@ public class Cliente {
 				taTexto.appendText("Desconectado \r\n");
 			} else {
 
-				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)) {
+				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO) ||  msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");
-				}else {
+				} else {
 					bfw.write(msg + "\r\n");
 					taTexto.appendText(getNome() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
@@ -127,7 +192,7 @@ public class Cliente {
 
 						if (situacao.contains(Cliente.DIGITANDO)) {
 							System.out.println("Metodo" + situacao);
-							lbDigitando.setText(situacao.split(" ")[1] +  " está digitando");
+							lbDigitando.setText(situacao.split(" ")[1] + " está digitando");
 						} else {
 							lbDigitando.setText("");
 						}
@@ -147,43 +212,7 @@ public class Cliente {
 		System.gc();
 	}
 
-	public void escutar() throws IOException {
-
-		Task<Void> taskEscutar = new Task<Void>() {
-			@Override
-			protected Void call() throws Exception {
-				String msg = "";
-				while (true) {
-					
-					if (bfr.ready()) {
-						System.out.println("aQUI");
-						msg = bfr.readLine();
-						if (msg.equals("Sair") || msg.equals("sair")) {
-							taTexto.appendText("Servidor caiu! \r\n");
-						} else {
-							if (msg.contains(DIGITANDO)) {
-								atualizarDigitando(msg);
-							} else if (msg.contains(NAO_DIGITANDO)) {
-								atualizarDigitando(NAO_DIGITANDO);
-							}else if(msg.contains(SUCESSO)) {
-								System.out.println("Logou");
-								logado = true;
-							}else {
-								taTexto.appendText(msg + "\r\n");
-							}
-
-						}
-
-					}
-				}
-			}
-		};
-		Thread threadEscutar = new Thread(taskEscutar);
-		threadEscutar.setDaemon(true);
-		threadEscutar.setPriority(7);
-		threadEscutar.start();
-
-	}
+	
 
 	public BufferedWriter getBfw() {
 		return bfw;
@@ -288,7 +317,13 @@ public class Cliente {
 	public void setLogado(boolean logado) {
 		this.logado = logado;
 	}
-	
-	
+
+	public ListView<String> getLvOlnine() {
+		return lvOlnine;
+	}
+
+	public void setLvOlnine(ListView<String> lvOlnine) {
+		this.lvOlnine = lvOlnine;
+	}
 
 }

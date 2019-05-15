@@ -40,6 +40,7 @@ import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 public class ControllerCliente extends Application implements Initializable {
+	public static final String MSG_PRIVADA = "MSG_PRIVADA";
 	@FXML
 	private Label lbDigitando;
 
@@ -56,7 +57,7 @@ public class ControllerCliente extends Application implements Initializable {
 	private JFXButton btnPrivado;
 
 	@FXML
-	private ListView<Usuario> lvOlnine;
+	private ListView<String> lvOlnine;
 
 	@FXML
 	private Label lbNome;
@@ -74,7 +75,7 @@ public class ControllerCliente extends Application implements Initializable {
 	private ServerSocket serverSocket;
 	private int portaPrivada;
 	public static ArrayList<ControllerCliente> controllerClientes = new ArrayList<>();
-
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
@@ -105,9 +106,30 @@ public class ControllerCliente extends Application implements Initializable {
 
 	}
 
-	private void selecionouDoTv(Usuario usuario) {
-		if (usuario != null) {
-			
+	private void selecionouDoTv(String clienteTabela) {
+		if (clienteTabela != null) {
+			try {
+				Tab tab = new Tab(clienteTabela);
+				FXMLLoader loader = new FXMLLoader();
+				loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
+				Parent root = loader.load();
+				tab.setContent(root);
+				tabPane.getTabs().addAll(tab);
+				tabPane.getSelectionModel().select(tab);
+				
+
+
+				ControllerPrivado controllerPrivado1 = loader.getController();
+				controllerPrivado1.setCliente(cliente);
+				controllerPrivado1.setClienteDestino(clienteTabela);
+				
+
+			} catch (IOException e) {
+				Alerta alerta = Alerta.getInstace(null);
+				alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar arquivo!");
+				e.printStackTrace();
+			}
+
 		}
 	}
 
@@ -137,46 +159,7 @@ public class ControllerCliente extends Application implements Initializable {
 	}
 
 	public void novaTab() {
-		try {
-			Tab tab = new Tab(controllerClientePrivado.getNome());
-			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
-			Parent root = loader.load();
-			tab.setContent(root);
-			tabPane.getTabs().addAll(tab);
-			tabPane.getSelectionModel().select(tab);
-			
-
-
-			ControllerPrivado controllerPrivado1 = loader.getController();
-			controllerPrivado1.getCliente().setIp(ip);
-			controllerPrivado1.getCliente().setPorta(portaPrivada + "");
-
-			FXMLLoader loader2 = new FXMLLoader();
-			loader2.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
-			Parent outro = loader2.load();
-			Tab tabOutro = new Tab(getNome());
-			tabOutro.setContent(outro);
-			ControllerPrivado controllerPrivado = loader2.getController();
-			
-			controllerClientePrivado.getTabPane().getTabs().add(tabOutro);
-			controllerClientePrivado.getTabPane().getSelectionModel().select(tabOutro);
-			
-			controllerPrivado.getCliente().setIp(ip);
-			controllerPrivado.getCliente().setPorta(portaPrivada + "");
-			
-			controllerPrivado1.getCliente().conectar();
-			controllerPrivado.getCliente().conectar();
-			
-			ComunicacaoPrivada.privados.add(controllerPrivado1.getCliente().getBfw());
-			ComunicacaoPrivada.privados.add(controllerPrivado.getCliente().getBfw());
-
-		} catch (IOException e) {
-			Alerta alerta = Alerta.getInstace(null);
-			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar arquivo!");
-			e.printStackTrace();
-		}
-
+		
 	}
 
 	public void sair() throws IOException {
@@ -222,7 +205,7 @@ public class ControllerCliente extends Application implements Initializable {
 		this.porta = porta;
 	}
 
-	public ListView<Usuario> getLvOlnine() {
+	public ListView<String> getLvOlnine() {
 		return lvOlnine;
 	}
 
@@ -240,6 +223,7 @@ public class ControllerCliente extends Application implements Initializable {
 		cliente.setTaTexto(taTexto);
 		cliente.setLbDigitando(lbDigitando);
 		cliente.setTfMsg(tfMsg);
+		cliente.setLvOlnine(lvOlnine);
 	}
 
 	public JFXTabPane getTabPane() {

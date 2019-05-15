@@ -13,6 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -28,6 +30,8 @@ public class Servidor extends Thread {
 
 	private static final String LOGANDO = "--LOGANDO--";
 	private static final String SUCESSO = "--SUCESSO--";
+	private static final String ENTROU_NA_SALA = "--ENTROU--";
+	public static final String MSG_PRIVADA = "MSG_PRIVADA";
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 	// private static ServerSocket server;
@@ -37,7 +41,13 @@ public class Servidor extends Thread {
 	private InputStreamReader inr;
 	private BufferedReader bfr;
 	private DAOUsuario daoUsuario;
-
+	
+	
+	
+	
+	private static Map<String, BufferedWriter> mapaDeCliente = new HashMap<>();
+	public static ArrayList<String> clientesEntraram = new ArrayList<>();
+	
 	public Servidor(Socket con, ServerSocket server) throws NumberFormatException, IOException {
 		daoUsuario = DAOUsuario.getInstance();
 		// server = new ServerSocket(Integer.parseInt("12345"));
@@ -70,17 +80,39 @@ public class Servidor extends Thread {
 			BufferedWriter bfw = new BufferedWriter(ouw);
 			clientes.add(bfw);
 			nome = msgCompleta = bfr.readLine();
-
+			
+			
+			
 			while (!"Sair".equalsIgnoreCase(msgCompleta) && msgCompleta != null) {
 				msgCompleta = bfr.readLine();
 
 				if (msgCompleta.contains(LOGANDO)) {
-					Usuario usuario = new Usuario(msgCompleta.split(" ")[0], msgCompleta.split(" ")[1]);
-
+					String login = msgCompleta.split(" ")[0];
+					mapaDeCliente.put(login, bfw);
+					Usuario usuario = new Usuario(login, msgCompleta.split(" ")[1]);
+					
 					if (daoUsuario.buscarLogin(usuario) != null) {
-						sendLogin(bfw, msgCompleta + " " + SUCESSO);
+						
+						clientesEntraram.add(login);
+						
+						System.out.println(clientesEntraram);
+						msgCompleta = "";
+						for(String cliente: clientesEntraram) {
+							msgCompleta += " " + cliente;
+						}
+						
+						sendLogin(bfw, msgCompleta + " " + SUCESSO + " " + ENTROU_NA_SALA);
+						send(bfw, msgCompleta + " " + ENTROU_NA_SALA);
 					}
 
+				}else if(msgCompleta.contains(MSG_PRIVADA)){
+					String clienteDestinarario = msgCompleta.split("-")[1];
+					System.out.println(clienteDestinarario.trim());
+					System.out.println("Aqui"  + mapaDeCliente.get("felipe"));
+					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
+					System.out.println("BFW" + bfwDestinario);
+					sendPrivado(bfwDestinario, msgCompleta);
+					
 				}else {
 					send(bfw, msgCompleta);
 				}
@@ -95,6 +127,23 @@ public class Servidor extends Thread {
 		} catch (IOException e) {
 			Alerta alerta = Alerta.getInstace(Alert.AlertType.WARNING);
 			alerta.alertar(AlertType.WARNING, "Atenção", "Erro ao carregar arquivo", "Atenção");
+		}
+	}
+	public void sendPrivado(BufferedWriter bwSaida, String msg) {
+		try {
+			BufferedWriter bwS;
+			for (BufferedWriter bw : clientes) {
+				bwS = (BufferedWriter) bw;
+				if (bwSaida == bwS) {
+					//System.out.println(msg);
+					bw.write(msg + "\r\n");
+					bw.flush();
+				}
+
+			}
+		} catch (IOException e) {
+			Alerta alerta = Alerta.getInstace(AlertType.NONE);
+			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar o arquivo!");
 		}
 	}
 

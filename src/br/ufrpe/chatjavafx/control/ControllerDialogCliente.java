@@ -157,14 +157,14 @@ public class ControllerDialogCliente extends Application implements Initializabl
 
 			ObservableList<Usuario> observableList = FXCollections.observableArrayList(daoUsuario.buscarLogados());
 
-			for (ControllerCliente controllerCliente2 : ControllerCliente.controllerClientes) {
-				controllerCliente2.getLvOlnine().setItems(observableList);
-			}
-
-			Random random = new Random();
-			int portaPrivada = random.nextInt(12345);
-			serverSocket = new ServerSocket(portaPrivada);
-			controllerCliente.setPortaPrivada(portaPrivada);
+//			for (ControllerCliente controllerCliente2 : ControllerCliente.controllerClientes) {
+//				controllerCliente2.getLvOlnine().setItems(observableList);
+//			}
+//
+//			Random random = new Random();
+//			int portaPrivada = random.nextInt(12345);
+//			serverSocket = new ServerSocket(portaPrivada);
+//			controllerCliente.setPortaPrivada(portaPrivada);
 
 			
 
