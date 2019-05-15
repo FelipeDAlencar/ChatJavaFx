@@ -109,7 +109,7 @@ public class ControllerServidor extends Application implements Initializable {
 
 		} catch (NumberFormatException e) {
 			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
-			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Informe um número inválido!");
+			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Informe um número válido!");
 			tfPorta.setEditable(true);
 
 		} catch (IOException e) {

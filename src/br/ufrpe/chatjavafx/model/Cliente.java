@@ -19,8 +19,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
@@ -33,7 +36,8 @@ public class Cliente {
 	private static final String SUCESSO = "--SUCESSO--";
 	private static final String ENTROU_NA_SALA = "--ENTROU--";
 	public static final String MSG_PRIVADA = "MSG_PRIVADA";
-
+	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
+	
 	private Socket socket;
 	private OutputStream ou;
 	private Writer ouw;
@@ -42,6 +46,9 @@ public class Cliente {
 	private Thread threadDigitando;
 	private String ip, nome, porta;
 	private boolean logado;
+
+	private ControllerCliente meuControllerCliente;
+
 	@FXML
 	private Label lbNome;
 
@@ -53,8 +60,7 @@ public class Cliente {
 
 	@FXML
 	private Label lbDigitando;
-	
-	
+
 	@FXML
 	private ListView<String> lvOlnine;
 
@@ -97,6 +103,7 @@ public class Cliente {
 		}
 
 	}
+
 	public void escutar() throws IOException {
 
 		Task<Void> taskEscutar = new Task<Void>() {
@@ -106,7 +113,6 @@ public class Cliente {
 				while (true) {
 
 					if (bfr.ready()) {
-						System.out.println("aQUI");
 						msg = bfr.readLine();
 						if (msg.equals("Sair") || msg.equals("sair")) {
 							taTexto.appendText("Servidor caiu! \r\n");
@@ -120,10 +126,10 @@ public class Cliente {
 								msg = msg.replace(SUCESSO, "");
 								msg = msg.replace(ENTROU_NA_SALA, "");
 								msg = msg.replace("\n", "");
-								
+
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
 								lvOlnine.setItems(ob);
-								
+
 								logado = true;
 							} else if (msg.contains(ENTROU_NA_SALA)) {
 								System.out.println("Entrou");
@@ -131,13 +137,68 @@ public class Cliente {
 								msg = msg.replace(SUCESSO, "");
 								msg = msg.replace(ENTROU_NA_SALA, "");
 								msg = msg.replace("\n", "");
-								
+
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
 								lvOlnine.setItems(ob);
+							} else if (msg.contains(MSG_PRIVADA) && msg.contains(DIGITANDO)
+									|| msg.contains(NAO_DIGITANDO)) {
+
+							} else if (msg.contains(MSG_PRIVADA)) {
+								msg = msg.replace(MSG_PRIVADA, "");
+								msg = msg.replace(msg.split("-")[1], "");
+								msg = msg.replaceAll("-", "");
+								meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(msg + "\r\n");
 								
-							//} //else if (msg.contains(MSG_PRIVADA)) {
-								
-								
+							} else if (msg.contains(REQUISITAR_PRIVADO)){
+								String minhaMsg = msg;
+								Task<Void> taskAtualizar = new Task<Void>() {
+									@Override
+									protected Void call() throws Exception {
+										Platform.runLater(new Runnable() {
+
+											@Override
+											public void run() {
+
+												try {
+
+													System.out.println("Requisição" + minhaMsg);
+													String nomeTab = minhaMsg.split("-")[2];
+													Tab tab = new Tab(nomeTab);
+													FXMLLoader loader = new FXMLLoader();
+													loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
+													Parent root;
+													root = loader.load();
+													tab.setContent(root);
+													meuControllerCliente.getTabPane().getTabs().add(tab);
+													meuControllerCliente.getTabPane().getSelectionModel().select(tab);
+													
+
+
+													meuControllerCliente.setControllerPrivado1(loader.getController()) ;
+													meuControllerCliente.getControllerPrivado1().setCliente(meuControllerCliente.getCliente());
+													meuControllerCliente.getControllerPrivado1().setClienteDestino(nomeTab);
+													meuControllerCliente.getControllerPrivado1().setNome(nome);
+													
+													//cliente.enviarMensagem(nome + "-" + " Privado:" + " - " + clienteTabela + " - "  + REQUISITAR_PRIVADO  );
+													meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(minhaMsg + "\r\n");
+													
+												} catch (IOException e) {
+													// TODO Auto-generated catch block
+													e.printStackTrace();
+												}
+												
+											}
+
+										});
+										return null;
+
+									}
+								};
+
+								Thread thread = new Thread(taskAtualizar);
+								thread.setDaemon(true);
+								thread.start();
+
 							}else {
 								taTexto.appendText(msg + "\r\n");
 							}
@@ -154,7 +215,7 @@ public class Cliente {
 		threadEscutar.start();
 
 	}
-	
+
 	public void enviarMensagem(String msg) {
 		try {
 			if (msg.equals("Sair") || msg.equals("sair")) {
@@ -162,9 +223,16 @@ public class Cliente {
 				taTexto.appendText("Desconectado \r\n");
 			} else {
 
-				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO) ||  msg.contains(MSG_PRIVADA)) {
+				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO) || msg.contains(REQUISITAR_PRIVADO) ) {
 					bfw.write(msg + "\r\n");
-				} else {
+				}else if(msg.contains(MSG_PRIVADA)) {
+					bfw.write(msg + "\r\n");
+					msg = msg.replace(MSG_PRIVADA, "");
+					msg = msg.replace(msg.split("-")[1], "");
+					msg = msg.replaceAll("-", "");
+					meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(msg + "\r\n");
+					
+				}else {
 					bfw.write(msg + "\r\n");
 					taTexto.appendText(getNome() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
@@ -191,7 +259,6 @@ public class Cliente {
 					public void run() {
 
 						if (situacao.contains(Cliente.DIGITANDO)) {
-							System.out.println("Metodo" + situacao);
 							lbDigitando.setText(situacao.split(" ")[1] + " está digitando");
 						} else {
 							lbDigitando.setText("");
@@ -211,8 +278,6 @@ public class Cliente {
 		taskAtualizar = null;
 		System.gc();
 	}
-
-	
 
 	public BufferedWriter getBfw() {
 		return bfw;
@@ -324,6 +389,14 @@ public class Cliente {
 
 	public void setLvOlnine(ListView<String> lvOlnine) {
 		this.lvOlnine = lvOlnine;
+	}
+
+	public ControllerCliente getMeuControllerCliente() {
+		return meuControllerCliente;
+	}
+
+	public void setMeuControllerCliente(ControllerCliente meuControllerCliente) {
+		this.meuControllerCliente = meuControllerCliente;
 	}
 
 }

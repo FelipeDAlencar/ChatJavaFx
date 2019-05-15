@@ -32,6 +32,7 @@ public class Servidor extends Thread {
 	private static final String SUCESSO = "--SUCESSO--";
 	private static final String ENTROU_NA_SALA = "--ENTROU--";
 	public static final String MSG_PRIVADA = "MSG_PRIVADA";
+	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 	// private static ServerSocket server;
@@ -41,13 +42,10 @@ public class Servidor extends Thread {
 	private InputStreamReader inr;
 	private BufferedReader bfr;
 	private DAOUsuario daoUsuario;
-	
-	
-	
-	
+
 	private static Map<String, BufferedWriter> mapaDeCliente = new HashMap<>();
 	public static ArrayList<String> clientesEntraram = new ArrayList<>();
-	
+
 	public Servidor(Socket con, ServerSocket server) throws NumberFormatException, IOException {
 		daoUsuario = DAOUsuario.getInstance();
 		// server = new ServerSocket(Integer.parseInt("12345"));
@@ -108,12 +106,18 @@ public class Servidor extends Thread {
 				}else if(msgCompleta.contains(MSG_PRIVADA)){
 					String clienteDestinarario = msgCompleta.split("-")[1];
 					System.out.println(clienteDestinarario.trim());
-					System.out.println("Aqui"  + mapaDeCliente.get("felipe"));
 					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
 					System.out.println("BFW" + bfwDestinario);
 					sendPrivado(bfwDestinario, msgCompleta);
 					
+				}else if (msgCompleta.contains(REQUISITAR_PRIVADO)){
+					String clienteDestinarario = msgCompleta.split("-")[0];
+					System.out.println(clienteDestinarario.trim());
+					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
+					System.out.println("BFW 2" + bfwDestinario);
+					sendPrivado(bfwDestinario, msgCompleta);
 				}else {
+							
 					send(bfw, msgCompleta);
 				}
 				
@@ -129,13 +133,14 @@ public class Servidor extends Thread {
 			alerta.alertar(AlertType.WARNING, "Atenção", "Erro ao carregar arquivo", "Atenção");
 		}
 	}
+
 	public void sendPrivado(BufferedWriter bwSaida, String msg) {
 		try {
 			BufferedWriter bwS;
 			for (BufferedWriter bw : clientes) {
 				bwS = (BufferedWriter) bw;
 				if (bwSaida == bwS) {
-					//System.out.println(msg);
+					// System.out.println(msg);
 					bw.write(msg + "\r\n");
 					bw.flush();
 				}
@@ -166,7 +171,6 @@ public class Servidor extends Thread {
 			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar o arquivo!");
 		}
 	}
-	
 
 	public void sendLogin(BufferedWriter bwSaida, String msg) {
 		try {
@@ -180,6 +184,7 @@ public class Servidor extends Thread {
 			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar o arquivo!");
 		}
 	}
+
 	public static void main(String[] args) {
 
 		// try {

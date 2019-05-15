@@ -41,6 +41,8 @@ import javafx.stage.Stage;
 
 public class ControllerCliente extends Application implements Initializable {
 	public static final String MSG_PRIVADA = "MSG_PRIVADA";
+	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
+	
 	@FXML
 	private Label lbDigitando;
 
@@ -70,12 +72,9 @@ public class ControllerCliente extends Application implements Initializable {
 
 	private Cliente cliente;
 	private String nome, ip, porta;
-	private ControllerCliente controllerClientePrivado;
 	private static FXMLLoader loader;
-	private ServerSocket serverSocket;
-	private int portaPrivada;
 	public static ArrayList<ControllerCliente> controllerClientes = new ArrayList<>();
-	
+	private ControllerPrivado controllerPrivado1;
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
@@ -119,9 +118,12 @@ public class ControllerCliente extends Application implements Initializable {
 				
 
 
-				ControllerPrivado controllerPrivado1 = loader.getController();
+				controllerPrivado1 = loader.getController();
 				controllerPrivado1.setCliente(cliente);
 				controllerPrivado1.setClienteDestino(clienteTabela);
+				controllerPrivado1.setNome(nome);
+				
+				cliente.enviarMensagem(clienteTabela + " -  " + " Privado:" + " - " + nome + " - "  + REQUISITAR_PRIVADO  );
 				
 
 			} catch (IOException e) {
@@ -224,18 +226,20 @@ public class ControllerCliente extends Application implements Initializable {
 		cliente.setLbDigitando(lbDigitando);
 		cliente.setTfMsg(tfMsg);
 		cliente.setLvOlnine(lvOlnine);
+		cliente.setMeuControllerCliente(this);
 	}
 
 	public JFXTabPane getTabPane() {
 		return tabPane;
 	}
 
-	public int getPortaPrivada() {
-		return portaPrivada;
+
+	public ControllerPrivado getControllerPrivado1() {
+		return controllerPrivado1;
 	}
 
-	public void setPortaPrivada(int portaPrivada) {
-		this.portaPrivada = portaPrivada;
+	public void setControllerPrivado1(ControllerPrivado controllerPrivado1) {
+		this.controllerPrivado1 = controllerPrivado1;
 	}
 	
 
