@@ -132,7 +132,8 @@ public class ControllerServidor extends Application implements Initializable {
 //
 //		if (tfSenha.getText().equals(tfConfirmarSenha.getText())) {
 //			if (!(daoUsuario.buscarLoginIgual(usuario) != null)) {
-//				daoUsuario.salvar(usuario);
+                                daoUsuario dao = new daoUsuario();
+//				dao.salvar(usuario);
 //				Alerta alerta = Alerta.getInstace(null);
 //				alerta.alertar(AlertType.WARNING, "Sucesso", "Usuário cadastrado com sucesso.",
 //						"Usuário foi cadastrado com sucesso, pronto para o uso.");
