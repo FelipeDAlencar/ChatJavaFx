@@ -1,7 +1,6 @@
 package br.ufrpe.chatjavafx.model.dao;
 
 import java.util.ArrayList;
-
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;

@@ -143,7 +143,6 @@ public class ControllerLogin extends Application implements Initializable {
 			ControllerCadastro controllerCadastro = loader.getController();
 			controllerCadastro.setCliente(cliente);
 			
-			
 			stage.show();
 
 		} catch (IOException e) {
