@@ -37,6 +37,8 @@ public class Cliente {
 	private static final String ENTROU_NA_SALA = "--ENTROU--";
 	public static final String MSG_PRIVADA = "MSG_PRIVADA";
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
+	private static final String CASDATRAR = "--CASDATRAR--";
+	private static final String LOGIN_ACEITO = "--LOGIN_ACEITO--";
 
 	private Socket socket;
 	private OutputStream ou;
@@ -203,7 +205,9 @@ public class Cliente {
 								thread.setDaemon(true);
 								thread.start();
 
-							} else {
+							}else if(msg.contains(CASDATRAR) && msg.contains(LOGIN_ACEITO)) {
+								
+							}else {
 								taTexto.appendText(msg + "\r\n");
 							}
 
@@ -228,7 +232,7 @@ public class Cliente {
 			} else {
 
 				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)
-						|| msg.contains(REQUISITAR_PRIVADO)) {
+						|| msg.contains(REQUISITAR_PRIVADO) || msg.contains(CASDATRAR)) {
 					bfw.write(msg + "\r\n");
 				} else if (msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");

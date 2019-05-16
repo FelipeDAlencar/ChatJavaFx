@@ -33,6 +33,9 @@ public class Servidor extends Thread {
 	private static final String ENTROU_NA_SALA = "--ENTROU--";
 	public static final String MSG_PRIVADA = "MSG_PRIVADA";
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
+	private static final String CASDATRAR = "--CASDATRAR--";
+	private static final String LOGIN_ACEITO = "--LOGIN_ACEITO--";
+	
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 	// private static ServerSocket server;
@@ -121,8 +124,24 @@ public class Servidor extends Thread {
 					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
 					System.out.println("BFW 2" + bfwDestinario);
 					sendPrivado(bfwDestinario, msgCompleta);
+				}else if(msgCompleta.contains(CASDATRAR)){
+					String login = msgCompleta.split("-")[0];
+					String senha = msgCompleta.split("-")[1];
+					
+					Usuario usuario = new Usuario(login.trim(), senha.trim());
+					
+					if(!(daoUsuario.buscarLoginIgual(usuario) != null)) {
+						daoUsuario.salvar(usuario);
+						sendLogin(bfw, msgCompleta + LOGIN_ACEITO);
+						Alerta alerta = Alerta.getInstace(null);
+						alerta.alertar(AlertType.INFORMATION, "Atenção", "Sucesso", "Login cadastrado com sucesso.");
+					}else {
+						Alerta alerta = Alerta.getInstace(null);
+						alerta.alertar(AlertType.INFORMATION, "Atenção", "Login existente", "Por favor escolha outro login.");
+						
+					}
+					
 				}else {
-							
 					send(bfw, msgCompleta);
 				}
 				

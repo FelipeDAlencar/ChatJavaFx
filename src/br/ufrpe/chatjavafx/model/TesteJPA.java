@@ -11,12 +11,8 @@ import br.ufrpe.chatjavafx.model.dao.DAOUsuario;
 public class TesteJPA {
 	public static void main(String[] args) {
 
-		Map<String, String> mapa = new HashMap<>();
-
-		mapa.put("jo", "João Delfino");
-		mapa.put("ma", "Maria do Carmo");
-		mapa.put("cl", "Claudinei Silva");
-		
-		System.out.println(mapa.get("jo"));
+		DAOUsuario daoUsuario = DAOUsuario.getInstance();
+		Usuario usuario = new Usuario("alencar", "123");
+		System.out.println(daoUsuario.buscarLogin(usuario));
 	}
 }
