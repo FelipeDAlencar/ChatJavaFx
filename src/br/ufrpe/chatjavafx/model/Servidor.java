@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import br.ufrpe.chatjavafx.model.dao.DAOMsgDaSala;
 import br.ufrpe.chatjavafx.model.dao.DAOUsuario;
 import br.ufrpe.chatjavafx.view.Alerta;
 import javafx.concurrent.Task;
@@ -35,6 +36,8 @@ public class Servidor extends Thread {
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
 	private static final String CASDATRAR = "--CASDATRAR--";
 	private static final String LOGIN_ACEITO = "--LOGIN_ACEITO--";
+	public static final String DIGITANDO = "--digitando--";
+	public static final String NAO_DIGITANDO = "--nao_digitando--";
 	
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
@@ -45,12 +48,14 @@ public class Servidor extends Thread {
 	private InputStreamReader inr;
 	private BufferedReader bfr;
 	private DAOUsuario daoUsuario;
-
+	private DAOMsgDaSala daoMsgDaSala;
+	
 	private static Map<String, BufferedWriter> mapaDeCliente = new HashMap<>();
 	public static ArrayList<String> clientesEntraram = new ArrayList<>();
 
 	public Servidor(Socket con, ServerSocket server) throws NumberFormatException, IOException {
 		daoUsuario = DAOUsuario.getInstance();
+		daoMsgDaSala = DAOMsgDaSala.getInstance();
 		// server = new ServerSocket(Integer.parseInt("12345"));
 		InetAddress inet = server.getInetAddress();
 
@@ -185,8 +190,15 @@ public class Servidor extends Thread {
 					System.out.println(msg);
 
 					bw.write(msg + "\r\n");
-
 					bw.flush();
+					
+					if(!(msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) ||  msg.contains(ENTROU_NA_SALA))) {
+						String login = msg.split(":")[0];
+						String msgReal = msg.split(":")[1];
+						MensagensDaSala mensagensDaSala = new MensagensDaSala(login.trim(), msgReal.trim());
+						daoMsgDaSala.salvar(mensagensDaSala);
+					}
+					
 				}
 
 			}
