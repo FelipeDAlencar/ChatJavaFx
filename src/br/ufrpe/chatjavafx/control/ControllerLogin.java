@@ -12,6 +12,7 @@ import br.ufrpe.chatjavafx.model.Cliente;
 import br.ufrpe.chatjavafx.model.Usuario;
 import br.ufrpe.chatjavafx.view.Alerta;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -23,11 +24,13 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class ControllerLogin extends Application implements Initializable {
 
 	private static final String LOGANDO = "--LOGANDO--";
-	
+	public static final String SAIR = "--SAIR--";
+
 	@FXML
 	private JFXTextField tfIp;
 
@@ -43,7 +46,7 @@ public class ControllerLogin extends Application implements Initializable {
 	@FXML
 	private Label lbCadastrar;
 
-	private Usuario usuario;
+	
 
 	private Cliente cliente;
 
@@ -59,9 +62,9 @@ public class ControllerLogin extends Application implements Initializable {
 			public void handle(MouseEvent event) {
 				cliente.setIp(tfIp.getText());
 				cliente.conectar();
-				
+
 				exibirTelaCadastro();
-				
+
 			}
 		});
 
@@ -113,6 +116,15 @@ public class ControllerLogin extends Application implements Initializable {
 
 			if (cliente.isLogado()) {
 				stage.show();
+
+				stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+
+					@Override
+					public void handle(WindowEvent event) {
+						cliente.enviarMensagem(tfLogin.getText() + " " + tfSenha.getText() + " " + SAIR);
+					}
+				});
+
 			} else {
 				Alerta alerta = Alerta.getInstace(null);
 				alerta.alertar(AlertType.INFORMATION, "Problema ao tentar logar", "Problema ao tentar logar",
@@ -139,10 +151,10 @@ public class ControllerLogin extends Application implements Initializable {
 			Stage stage = new Stage();
 			Scene scene = new Scene(root);
 			stage.setScene(scene);
-			
+
 			ControllerCadastro controllerCadastro = loader.getController();
 			controllerCadastro.setCliente(cliente);
-			
+
 			stage.show();
 
 		} catch (IOException e) {

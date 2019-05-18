@@ -26,8 +26,11 @@ public class Usuario {
 	}
 	@Override
 	public String toString() {
-
-		return login;
+		
+		if(logado) {
+			return "+" + login;
+		}
+		return "-" + login;
 	}
 
 	public Integer getId() {

@@ -38,7 +38,8 @@ public class Servidor extends Thread {
 	private static final String LOGIN_ACEITO = "--LOGIN_ACEITO--";
 	public static final String DIGITANDO = "--digitando--";
 	public static final String NAO_DIGITANDO = "--nao_digitando--";
-	
+	public static final String SAIR = "--SAIR--";
+	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 	// private static ServerSocket server;
@@ -96,12 +97,13 @@ public class Servidor extends Thread {
 					String login = msgCompleta.split(" ")[0];
 					mapaDeCliente.put(login, bfw);
 					Usuario usuario = new Usuario(login, msgCompleta.split(" ")[1]);
-					
-					if (daoUsuario.buscarLogin(usuario) != null) {
+					usuario = daoUsuario.buscarLogin(usuario);
+					if (usuario != null) {
+						usuario.setLogado(true);
+						daoUsuario.salvar(usuario);
+						clientesEntraram.add(usuario.toString());
 						
-						clientesEntraram.add(login);
 						
-						System.out.println(clientesEntraram);
 						msgCompleta = "";
 						for(String cliente: clientesEntraram) {
 							msgCompleta += " " + cliente;
@@ -145,6 +147,21 @@ public class Servidor extends Thread {
 						alerta.alertar(AlertType.INFORMATION, "Atenção", "Login existente", "Por favor escolha outro login.");
 						
 					}
+					
+				}else if(msgCompleta.contains(SAIR)){
+					String login = msgCompleta.split(" ")[0];
+					mapaDeCliente.put(login, bfw);
+					Usuario usuario = new Usuario(login, msgCompleta.split(" ")[1]);
+					usuario = daoUsuario.buscarLogin(usuario);
+					usuario.setLogado(false);
+					daoUsuario.salvar(usuario);
+					
+				}else if(msgCompleta.contains(ULTIMO_ONLINE)) {
+					String clienteDestinarario = msgCompleta.split("-")[0];
+					System.out.println(clienteDestinarario);
+					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
+					System.out.println("BFW 2" + bfwDestinario);
+					sendPrivado(bfwDestinario, msgCompleta);
 					
 				}else {
 					send(bfw, msgCompleta);

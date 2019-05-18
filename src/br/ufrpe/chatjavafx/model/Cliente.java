@@ -39,6 +39,8 @@ public class Cliente {
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
 	private static final String CASDATRAR = "--CASDATRAR--";
 	private static final String LOGIN_ACEITO = "--LOGIN_ACEITO--";
+	public static final String SAIR = "--SAIR--";
+	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
 
 	private Socket socket;
 	private OutputStream ou;
@@ -123,7 +125,9 @@ public class Cliente {
 								atualizarDigitandoPrivado(msg);
 							} else if (msg.contains(MSG_PRIVADA) && msg.contains(NAO_DIGITANDO)) {
 								atualizarDigitandoPrivado(msg);
-							} else if (msg.contains(DIGITANDO)) {
+							}else if(msg.contains(MSG_PRIVADA) && msg.contains(ULTIMO_ONLINE)) {
+								atualizarVistoPorUltimo(msg);
+							}else if (msg.contains(DIGITANDO)) {
 								atualizarDigitando(msg);
 							} else if (msg.contains(NAO_DIGITANDO)) {
 								atualizarDigitando(NAO_DIGITANDO);
@@ -166,7 +170,7 @@ public class Cliente {
 
 													System.out.println("Requisição" + minhaMsg);
 													String nomeTab = minhaMsg.split("-")[2];
-													Tab tab = new Tab(nomeTab);
+													Tab tab = new Tab("+" + nomeTab);
 													FXMLLoader loader = new FXMLLoader();
 													loader.setLocation(getClass()
 															.getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
@@ -207,6 +211,8 @@ public class Cliente {
 
 							}else if(msg.contains(CASDATRAR) && msg.contains(LOGIN_ACEITO)) {
 								
+							}else if(msg.contains(SAIR)){
+								
 							}else {
 								taTexto.appendText(msg + "\r\n");
 							}
@@ -232,7 +238,7 @@ public class Cliente {
 			} else {
 
 				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)
-						|| msg.contains(REQUISITAR_PRIVADO) || msg.contains(CASDATRAR)) {
+						|| msg.contains(REQUISITAR_PRIVADO) || msg.contains(CASDATRAR) || msg.contains(SAIR) || msg.contains(ULTIMO_ONLINE)) {
 					bfw.write(msg + "\r\n");
 				} else if (msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");
@@ -302,6 +308,34 @@ public class Cliente {
 						} else {
 							meuControllerCliente.getControllerPrivado1().getLbDigitando().setText("");
 						}
+					}
+
+				});
+				return null;
+
+			}
+		};
+
+		Thread thread = new Thread(taskAtualizar);
+		thread.setDaemon(true);
+		thread.start();
+
+		taskAtualizar = null;
+		System.gc();
+	}
+	public void atualizarVistoPorUltimo(String situacao) {
+		Task<Void> taskAtualizar = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+
+						if (situacao.contains(ULTIMO_ONLINE)) {
+							meuControllerCliente.getControllerPrivado1().getLbUltimoVisualizacao()
+									.setText(situacao.split("-")[2]);
+						} 
 					}
 
 				});

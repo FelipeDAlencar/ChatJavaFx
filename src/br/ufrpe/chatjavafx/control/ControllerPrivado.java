@@ -1,7 +1,8 @@
 package br.ufrpe.chatjavafx.control;
 
-import java.io.BufferedWriter;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 import com.jfoenix.controls.JFXButton;
@@ -14,13 +15,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 
 public class ControllerPrivado implements Initializable {
 	public static final String MSG_PRIVADA = "MSG_PRIVADA";
 	public static final String DIGITANDO = "--digitando--";
 	public static final String NAO_DIGITANDO = "--nao_digitando--";
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
-	
+	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
+
 	@FXML
 	private JFXTextArea taTexto;
 
@@ -36,31 +39,46 @@ public class ControllerPrivado implements Initializable {
 	@FXML
 	private Label lbNome;
 
+	@FXML
+	private Label lbUltimoVisualizacao;
+
 	private Cliente cliente;
-	
+
 	private String nome;
+
+	private String clienteDestino;
 	
-	private String ClienteDestino;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		//cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
+		// cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
 
+		tfMsg.focusedProperty().addListener((o, old, nval) -> {
+			if (nval != null) {
+				if(nval.booleanValue()) {
+					cliente.enviarMensagem(" - " + clienteDestino + " - " + "Online" + " - "+ ULTIMO_ONLINE + " - " + MSG_PRIVADA);
+				}else {
+					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/YYY hh:MM:ss");
+					cliente.enviarMensagem(" - " + clienteDestino + " - " + "Visto pot ultimo " + formato.format(new Date()) + " - " + ULTIMO_ONLINE + " - " + MSG_PRIVADA);
+				}
+			}
+
+		});
 		tfMsg.setOnKeyPressed((evt) -> {
 			if (evt.getCode() == KeyCode.ENTER) {
 
-				cliente.enviarMensagem(nome + ": " + tfMsg.getText() + " - " + ClienteDestino + " - " + MSG_PRIVADA);
+				cliente.enviarMensagem(nome + ": " + tfMsg.getText() + " - " + clienteDestino + " - " + MSG_PRIVADA);
 
 			} else {
 
-				cliente.enviarMensagem(MSG_PRIVADA + " - " + ClienteDestino + " - " + nome  + " - " + " - " + DIGITANDO );
+				cliente.enviarMensagem(MSG_PRIVADA + " - " + clienteDestino + " - " + nome + " - " + " - " + DIGITANDO);
 
 			}
 		});
 
 		tfMsg.setOnKeyReleased((evt) -> {
 
-			cliente.enviarMensagem(MSG_PRIVADA + " - " + ClienteDestino  + " - " + " - " + NAO_DIGITANDO );
+			cliente.enviarMensagem(MSG_PRIVADA + " - " + clienteDestino + " - " + " - " + NAO_DIGITANDO);
 
 		});
 	}
@@ -70,7 +88,7 @@ public class ControllerPrivado implements Initializable {
 		if (event.getSource() == btnSair) {
 			System.exit(0);
 		} else {
-			cliente.enviarMensagem(nome + ": " + tfMsg.getText() + " - " + ClienteDestino + " - " + MSG_PRIVADA);
+			cliente.enviarMensagem(nome + ": " + tfMsg.getText() + " - " + clienteDestino + " - " + MSG_PRIVADA);
 		}
 	}
 
@@ -80,7 +98,7 @@ public class ControllerPrivado implements Initializable {
 
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
-		
+
 	}
 
 	public String getNome() {
@@ -92,11 +110,11 @@ public class ControllerPrivado implements Initializable {
 	}
 
 	public String getClienteDestino() {
-		return ClienteDestino;
+		return clienteDestino;
 	}
 
 	public void setClienteDestino(String clienteDestino) {
-		ClienteDestino = clienteDestino;
+		this.clienteDestino = clienteDestino;
 	}
 
 	public JFXTextArea getTaTexto() {
@@ -131,10 +149,13 @@ public class ControllerPrivado implements Initializable {
 		this.lbNome = lbNome;
 	}
 
-	
+	public Label getLbUltimoVisualizacao() {
+		return lbUltimoVisualizacao;
+	}
 
-	
-	
+	public void setLbUltimoVisualizacao(Label lbUltimoVisualizacao) {
+		this.lbUltimoVisualizacao = lbUltimoVisualizacao;
+	}
 	
 
 }

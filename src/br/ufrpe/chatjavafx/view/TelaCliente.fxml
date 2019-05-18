@@ -70,11 +70,6 @@
                                        <children>
                                           <Label text="Sala" />
                                           <ListView fx:id="lvOlnine" prefHeight="253.0" prefWidth="100.0" />
-                                          <JFXButton fx:id="btnPrivado" onAction="#acaoBtn" style="-fx-background-color: #5b859a;" text="Abrir privado" textFill="WHITE">
-                                             <cursor>
-                                                <Cursor fx:constant="HAND" />
-                                             </cursor>
-                                          </JFXButton>
                                        </children>
                                     </VBox>
                                  </children>

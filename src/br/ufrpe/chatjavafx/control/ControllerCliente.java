@@ -120,8 +120,11 @@ public class ControllerCliente extends Application implements Initializable {
 
 				controllerPrivado1 = loader.getController();
 				controllerPrivado1.setCliente(cliente);
+				clienteTabela = clienteTabela.replace("+", "");
+				clienteTabela = clienteTabela.replace("-", "");
 				controllerPrivado1.setClienteDestino(clienteTabela);
 				controllerPrivado1.setNome(nome);
+				
 				
 				cliente.enviarMensagem(clienteTabela + " -  " + " Privado:" + " - " + nome + " - "  + REQUISITAR_PRIVADO  );
 				

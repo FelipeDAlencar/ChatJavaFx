@@ -36,18 +36,6 @@ public class ControllerServidor extends Application implements Initializable {
 	@FXML
 	private JFXButton btnConfirmar;
 
-	@FXML
-	private JFXTextField tfLogin;
-
-	@FXML
-	private JFXPasswordField tfSenha;
-
-	@FXML
-	private JFXPasswordField tfConfirmarSenha;
-
-	@FXML
-	private JFXButton btnCadastrar;
-
 	public static String porta = "";
 
 	private Alerta alerta;
@@ -122,31 +110,6 @@ public class ControllerServidor extends Application implements Initializable {
 	@FXML
 	void acaoBtnConfirmar(ActionEvent event) {
 		estabelecerConexao();
-	}
-
-	@FXML
-	void acaoBtnCadastrar(ActionEvent event) {
-//		Usuario usuario = new Usuario();
-//		usuario.setLogin(tfLogin.getText());
-//		usuario.setSenha(tfSenha.getText());
-//
-//		if (tfSenha.getText().equals(tfConfirmarSenha.getText())) {
-//			if (!(daoUsuario.buscarLoginIgual(usuario) != null)) {
-//                              daoUsuario dao = new daoUsuario();
-//				dao.salvar(usuario);
-//				Alerta alerta = Alerta.getInstace(null);
-//				alerta.alertar(AlertType.WARNING, "Sucesso", "Usuário cadastrado com sucesso.",
-//						"Usuário foi cadastrado com sucesso, pronto para o uso.");
-//			} else {
-//				Alerta alerta = Alerta.getInstace(null);
-//				alerta.alertar(AlertType.WARNING, "Usuário já existente", "Usuário já existente",
-//						"Por favor, insira um novo login. Este login já existe.");
-//			}
-//		} else {
-//			Alerta alerta = Alerta.getInstace(null);
-//			alerta.alertar(AlertType.WARNING, "Senhas incompativeis", "Senhas não correspondem",
-//					"Por favor, garanta" + "que as senhas sejam iguais");
-//		}
 	}
 
 	public static void main(String[] args) {
