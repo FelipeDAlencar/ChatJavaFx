@@ -39,7 +39,7 @@ public class ControllerServidor extends Application implements Initializable {
 	public static String porta = "";
 
 	private Alerta alerta;
-	private static Stage meuStage;
+	private  Stage meuStage;
 	private static ServerSocket server;
 	private FXMLLoader loader;
 	private DAOUsuario daoUsuario;
@@ -117,4 +117,13 @@ public class ControllerServidor extends Application implements Initializable {
 
 	}
 
+	public Stage getMeuStage() {
+		return meuStage;
+	}
+
+	public void setMeuStage(Stage meuStage) {
+		this.meuStage = meuStage;
+	}
+	
+	
 }

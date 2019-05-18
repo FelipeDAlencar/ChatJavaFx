@@ -50,7 +50,7 @@ public class ControllerLogin extends Application implements Initializable {
 
 	private Cliente cliente;
 
-	private static Stage meuStage;
+	private  Stage meuStage;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -86,7 +86,7 @@ public class ControllerLogin extends Application implements Initializable {
 	@FXML
 	void AcaoBtnEntrar(ActionEvent event) throws InterruptedException {
 
-		meuStage.setIconified(true);
+	
 		try {
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/TelaCliente.fxml"));
@@ -124,6 +124,8 @@ public class ControllerLogin extends Application implements Initializable {
 						cliente.enviarMensagem(tfLogin.getText() + " " + tfSenha.getText() + " " + SAIR);
 					}
 				});
+				
+				meuStage.setIconified(true);
 
 			} else {
 				Alerta alerta = Alerta.getInstace(null);
@@ -167,4 +169,13 @@ public class ControllerLogin extends Application implements Initializable {
 		launch(args);
 	}
 
+	public  Stage getMeuStage() {
+		return meuStage;
+	}
+
+	public  void setMeuStage(Stage meuStage) {
+		this.meuStage = meuStage;
+	}
+
+	
 }
