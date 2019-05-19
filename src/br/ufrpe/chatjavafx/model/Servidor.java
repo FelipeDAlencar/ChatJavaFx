@@ -40,6 +40,7 @@ public class Servidor extends Thread {
 	public static final String NAO_DIGITANDO = "--nao_digitando--";
 	public static final String SAIR = "--SAIR--";
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
+	public static final String RECUPERAR_MENSAGENS_OFFLINE = "RECUPERAR_MENSAGENS_OFFLINE";
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 	// private static ServerSocket server;
@@ -50,7 +51,7 @@ public class Servidor extends Thread {
 	private BufferedReader bfr;
 	private DAOUsuario daoUsuario;
 	private DAOMsgDaSala daoMsgDaSala;
-	
+
 	private static Map<String, BufferedWriter> mapaDeCliente = new HashMap<>();
 	public static ArrayList<String> clientesEntraram = new ArrayList<>();
 
@@ -87,9 +88,7 @@ public class Servidor extends Thread {
 			BufferedWriter bfw = new BufferedWriter(ouw);
 			clientes.add(bfw);
 			nome = msgCompleta = bfr.readLine();
-			
-			
-			
+
 			while (!"Sair".equalsIgnoreCase(msgCompleta) && msgCompleta != null) {
 				msgCompleta = bfr.readLine();
 
@@ -102,71 +101,86 @@ public class Servidor extends Thread {
 						usuario.setLogado(true);
 						daoUsuario.salvar(usuario);
 						clientesEntraram.add(usuario.toString());
-						
-						
+
 						msgCompleta = "";
-						for(String cliente: clientesEntraram) {
+						for (String cliente : clientesEntraram) {
 							msgCompleta += " " + cliente;
 						}
-						
+
 						sendLogin(bfw, msgCompleta + " " + SUCESSO + " " + ENTROU_NA_SALA);
 						send(bfw, msgCompleta + " " + ENTROU_NA_SALA);
 					}
 
-				}else if(msgCompleta.contains(MSG_PRIVADA)){
+				} else if (msgCompleta.contains(MSG_PRIVADA)) {
 					String clienteDestinarario = msgCompleta.split("-")[1];
-					
-					for(String i: msgCompleta.split("-")) {
-						System.out.println("split " + i );
+
+					for (String i : msgCompleta.split("-")) {
+						System.out.println("split " + i);
 					}
 					System.out.println("Destino " + clienteDestinarario.trim());
-					
+
 					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
 					System.out.println("BFW" + bfwDestinario);
 					sendPrivado(bfwDestinario, msgCompleta);
-					
-				}else if (msgCompleta.contains(REQUISITAR_PRIVADO)){
+
+				} else if (msgCompleta.contains(REQUISITAR_PRIVADO)) {
 					String clienteDestinarario = msgCompleta.split("-")[0];
 					System.out.println(clienteDestinarario);
 					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
 					System.out.println("BFW 2" + bfwDestinario);
 					sendPrivado(bfwDestinario, msgCompleta);
-				}else if(msgCompleta.contains(CASDATRAR)){
+				} else if (msgCompleta.contains(CASDATRAR)) {
 					String login = msgCompleta.split("-")[0];
 					String senha = msgCompleta.split("-")[1];
-					
+
 					Usuario usuario = new Usuario(login.trim(), senha.trim());
-					
-					if(!(daoUsuario.buscarLoginIgual(usuario) != null)) {
+
+					if (!(daoUsuario.buscarLoginIgual(usuario) != null)) {
 						daoUsuario.salvar(usuario);
 						sendLogin(bfw, msgCompleta + LOGIN_ACEITO);
 						Alerta alerta = Alerta.getInstace(null);
 						alerta.alertar(AlertType.INFORMATION, "Atenção", "Sucesso", "Login cadastrado com sucesso.");
-					}else {
+					} else {
 						Alerta alerta = Alerta.getInstace(null);
-						alerta.alertar(AlertType.INFORMATION, "Atenção", "Login existente", "Por favor escolha outro login.");
-						
+						alerta.alertar(AlertType.INFORMATION, "Atenção", "Login existente",
+								"Por favor escolha outro login.");
+
 					}
-					
-				}else if(msgCompleta.contains(SAIR)){
+
+				} else if (msgCompleta.contains(SAIR)) {
 					String login = msgCompleta.split(" ")[0];
 					mapaDeCliente.put(login, bfw);
 					Usuario usuario = new Usuario(login, msgCompleta.split(" ")[1]);
 					usuario = daoUsuario.buscarLogin(usuario);
 					usuario.setLogado(false);
 					daoUsuario.salvar(usuario);
-					
-				}else if(msgCompleta.contains(ULTIMO_ONLINE)) {
+
+				} else if (msgCompleta.contains(ULTIMO_ONLINE)) {
 					String clienteDestinarario = msgCompleta.split("-")[0];
 					System.out.println(clienteDestinarario);
 					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
 					System.out.println("BFW 2" + bfwDestinario);
 					sendPrivado(bfwDestinario, msgCompleta);
+
+				} else if (msgCompleta.contains(RECUPERAR_MENSAGENS_OFFLINE)) {
+					String clienteDestinarario = msgCompleta.split("-")[0];
+					Usuario usuario = daoUsuario.buscarPeloLogin(clienteDestinarario.trim());
+					System.out.println("Usuario " + usuario);
+					System.out.println("Cliente Destino  " + clienteDestinarario.trim());
 					
-				}else {
+					for (MensagensDaSala mensagensDaSala : daoMsgDaSala.buscarMsgOffline(usuario)) {
+						msgCompleta += " - " + mensagensDaSala.getLogin() + ": " + mensagensDaSala.getMsg() + "\n";
+					}
+
+					System.out.println("Mensagem completa " + msgCompleta);
+					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
+					System.out.println("BFW 2" + bfwDestinario);
+
+					sendLogin(bfwDestinario, msgCompleta);
+
+				} else {
 					send(bfw, msgCompleta);
 				}
-				
 
 			}
 
@@ -208,14 +222,20 @@ public class Servidor extends Thread {
 
 					bw.write(msg + "\r\n");
 					bw.flush();
-					
-					if(!(msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) ||  msg.contains(ENTROU_NA_SALA))) {
+
+					if (!(msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(ENTROU_NA_SALA))) {
 						String login = msg.split(":")[0];
 						String msgReal = msg.split(":")[1];
-						MensagensDaSala mensagensDaSala = new MensagensDaSala(login.trim(), msgReal.trim());
-						daoMsgDaSala.salvar(mensagensDaSala);
+
+						for (Usuario usuario : daoUsuario.buscarUsuariosOff()) {
+							MensagensDaSala mensagensDaSala = new MensagensDaSala(login.trim(), msgReal.trim());
+							mensagensDaSala.setUsuarioOff(usuario);
+							daoMsgDaSala.salvar(mensagensDaSala);
+
+						}
+
 					}
-					
+
 				}
 
 			}

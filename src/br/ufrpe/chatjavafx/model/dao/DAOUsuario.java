@@ -123,4 +123,42 @@ public class DAOUsuario {
 
 		return usuarios;
 	}
+
+	public ArrayList<Usuario> buscarUsuariosOff() {
+		EntityManager em = ConnectionFactory.getInstance().getConnection();
+
+		ArrayList<Usuario> usuarios = null;
+		try {
+
+			usuarios = (ArrayList<Usuario>) em.createQuery("from Usuario u where u.logado = false").getResultList();
+			return usuarios;
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		} finally {
+			em.close();
+		}
+
+		return usuarios;
+	}
+
+	public Usuario buscarPeloLogin(String login) {
+		EntityManager em = ConnectionFactory.getInstance().getConnection();
+
+		Usuario usuario = null;
+		try {
+
+			TypedQuery<Usuario> query = em.createQuery("select u from Usuario u where u.login = :login", Usuario.class);
+			query.setParameter("login", login);
+			usuario = query.getSingleResult();
+			return usuario;
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		} finally {
+			em.close();
+		}
+
+		return usuario;
+	}
 }

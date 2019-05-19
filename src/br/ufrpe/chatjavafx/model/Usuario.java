@@ -1,9 +1,12 @@
 package br.ufrpe.chatjavafx.model;
 
+import java.util.ArrayList;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 
 @Entity
@@ -16,6 +19,8 @@ public class Usuario {
 	private String login;
 	private String senha;
 	private boolean logado;
+	
+	
 	
 	public Usuario() {
 		// TODO Auto-generated constructor stub

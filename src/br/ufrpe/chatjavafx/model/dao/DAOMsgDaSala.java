@@ -3,6 +3,7 @@ package br.ufrpe.chatjavafx.model.dao;
 import java.util.ArrayList;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 import br.ufrpe.chatjavafx.jpa.ConnectionFactory;
 import br.ufrpe.chatjavafx.model.MensagensDaSala;
@@ -56,6 +57,27 @@ public class DAOMsgDaSala {
 
 			msgDaSala = (ArrayList<MensagensDaSala>) em.createQuery("from MensagensDaSala m").getResultList();
 
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		} finally {
+			em.close();
+		}
+		return msgDaSala;
+	}
+	
+	public ArrayList<MensagensDaSala> buscarMsgOffline(Usuario usuario) {
+		EntityManager em = ConnectionFactory.getInstance().getConnection();
+
+		ArrayList<MensagensDaSala> msgDaSala = null;
+		try {
+
+			TypedQuery<MensagensDaSala> query = em
+					.createQuery("select m from MensagensDaSala m where m.usuarioOff = :usuarioOff", MensagensDaSala.class);
+			query.setParameter("usuarioOff", usuario);
+			
+			msgDaSala = (ArrayList<MensagensDaSala>) query.getResultList();
+			return msgDaSala;
 		} catch (Exception e) {
 			e.printStackTrace();
 

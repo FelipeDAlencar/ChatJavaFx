@@ -77,7 +77,7 @@ public class ControllerCliente extends Application implements Initializable {
 	private ControllerPrivado controllerPrivado1;
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
+		//cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
 	
 
 		lvOlnine.getSelectionModel().selectedItemProperty()

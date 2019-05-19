@@ -41,6 +41,7 @@ public class Cliente {
 	private static final String LOGIN_ACEITO = "--LOGIN_ACEITO--";
 	public static final String SAIR = "--SAIR--";
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
+	public static final String RECUPERAR_MENSAGENS_OFFLINE = "RECUPERAR_MENSAGENS_OFFLINE";
 
 	private Socket socket;
 	private OutputStream ou;
@@ -48,7 +49,7 @@ public class Cliente {
 	private BufferedReader bfr;
 	private Task<Void> taskDigitando;
 	private Thread threadDigitando;
-	private String ip, nome, porta;
+	private String ip, login, porta;
 	private boolean logado;
 
 	private ControllerCliente meuControllerCliente;
@@ -68,13 +69,6 @@ public class Cliente {
 	@FXML
 	private ListView<String> lvOlnine;
 
-	public Cliente(Label lbNome, Label lbDigitando, TextArea taTexto, TextField tfmsg) {
-		this.lbNome = lbNome;
-		this.lbDigitando = lbDigitando;
-		this.taTexto = taTexto;
-		this.tfMsg = tfmsg;
-	}
-
 	public Cliente() {
 
 	}
@@ -86,7 +80,7 @@ public class Cliente {
 			ou = socket.getOutputStream();
 			ouw = new OutputStreamWriter(ou);
 			bfw = new BufferedWriter(ouw);
-			bfw.write(nome + "\r\n");
+			bfw.write(login + "\r\n");
 			InputStream in = socket.getInputStream();
 			InputStreamReader inr = new InputStreamReader(in);
 			bfr = new BufferedReader(inr);
@@ -125,9 +119,9 @@ public class Cliente {
 								atualizarDigitandoPrivado(msg);
 							} else if (msg.contains(MSG_PRIVADA) && msg.contains(NAO_DIGITANDO)) {
 								atualizarDigitandoPrivado(msg);
-							}else if(msg.contains(MSG_PRIVADA) && msg.contains(ULTIMO_ONLINE)) {
+							} else if (msg.contains(MSG_PRIVADA) && msg.contains(ULTIMO_ONLINE)) {
 								atualizarVistoPorUltimo(msg);
-							}else if (msg.contains(DIGITANDO)) {
+							} else if (msg.contains(DIGITANDO)) {
 								atualizarDigitando(msg);
 							} else if (msg.contains(NAO_DIGITANDO)) {
 								atualizarDigitando(NAO_DIGITANDO);
@@ -136,6 +130,8 @@ public class Cliente {
 								msg = msg.replace(SUCESSO, "");
 								msg = msg.replace(ENTROU_NA_SALA, "");
 								msg = msg.replace("\n", "");
+
+								enviarMensagem(login + " - " + RECUPERAR_MENSAGENS_OFFLINE);
 
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
 								lvOlnine.setItems(ob);
@@ -185,7 +181,7 @@ public class Cliente {
 															.setCliente(meuControllerCliente.getCliente());
 													meuControllerCliente.getControllerPrivado1()
 															.setClienteDestino(nomeTab);
-													meuControllerCliente.getControllerPrivado1().setNome(nome);
+													meuControllerCliente.getControllerPrivado1().setNome(login);
 
 													// cliente.enviarMensagem(nome + "-" + " Privado:" + " - " +
 													// clienteTabela + " - " + REQUISITAR_PRIVADO );
@@ -209,11 +205,15 @@ public class Cliente {
 								thread.setDaemon(true);
 								thread.start();
 
-							}else if(msg.contains(CASDATRAR) && msg.contains(LOGIN_ACEITO)) {
-								
-							}else if(msg.contains(SAIR)){
-								
-							}else {
+							} else if (msg.contains(CASDATRAR) && msg.contains(LOGIN_ACEITO)) {
+
+							} else if (msg.contains(SAIR)) {
+
+							} else if (msg.contains(RECUPERAR_MENSAGENS_OFFLINE)) {
+								msg = msg.replace(login, "");
+								msg = msg.replace(RECUPERAR_MENSAGENS_OFFLINE, "");
+								taTexto.appendText(msg.trim() + "\r\n");
+							} else {
 								taTexto.appendText(msg + "\r\n");
 							}
 
@@ -238,7 +238,8 @@ public class Cliente {
 			} else {
 
 				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)
-						|| msg.contains(REQUISITAR_PRIVADO) || msg.contains(CASDATRAR) || msg.contains(SAIR) || msg.contains(ULTIMO_ONLINE)) {
+						|| msg.contains(REQUISITAR_PRIVADO) || msg.contains(CASDATRAR) || msg.contains(SAIR)
+						|| msg.contains(ULTIMO_ONLINE) || msg.contains(RECUPERAR_MENSAGENS_OFFLINE)) {
 					bfw.write(msg + "\r\n");
 				} else if (msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");
@@ -323,6 +324,7 @@ public class Cliente {
 		taskAtualizar = null;
 		System.gc();
 	}
+
 	public void atualizarVistoPorUltimo(String situacao) {
 		Task<Void> taskAtualizar = new Task<Void>() {
 			@Override
@@ -335,7 +337,7 @@ public class Cliente {
 						if (situacao.contains(ULTIMO_ONLINE)) {
 							meuControllerCliente.getControllerPrivado1().getLbUltimoVisualizacao()
 									.setText(situacao.split("-")[2]);
-						} 
+						}
 					}
 
 				});
@@ -409,11 +411,11 @@ public class Cliente {
 	}
 
 	public String getNome() {
-		return nome;
+		return login;
 	}
 
 	public void setNome(String nome) {
-		this.nome = nome;
+		this.login = nome;
 	}
 
 	public Label getLbNome() {

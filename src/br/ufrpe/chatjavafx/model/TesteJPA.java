@@ -6,13 +6,16 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 
 import br.ufrpe.chatjavafx.jpa.ConnectionFactory;
+import br.ufrpe.chatjavafx.model.dao.DAOMsgDaSala;
 import br.ufrpe.chatjavafx.model.dao.DAOUsuario;
 
 public class TesteJPA {
 	public static void main(String[] args) {
 
-		DAOUsuario daoUsuario = DAOUsuario.getInstance();
-		Usuario usuario = new Usuario("alencar", "123");
-		System.out.println(daoUsuario.buscarLogin(usuario));
+		DAOMsgDaSala mSala = DAOMsgDaSala.getInstance();
+
+		Usuario usuario = new Usuario();
+		usuario.setId(4);
+		System.out.println(mSala.buscarMsgOffline(usuario));
 	}
 }

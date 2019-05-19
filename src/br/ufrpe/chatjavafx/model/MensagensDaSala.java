@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 
 @Entity
@@ -15,6 +16,8 @@ public class MensagensDaSala {
 	private Integer id;
 	private String login;
 	private String msg;
+	@ManyToOne
+	private Usuario usuarioOff;
 	
 	
 	
@@ -48,6 +51,14 @@ public class MensagensDaSala {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public Usuario getUsuarioOff() {
+		return usuarioOff;
+	}
+
+	public void setUsuarioOff(Usuario usuarioOff) {
+		this.usuarioOff = usuarioOff;
 	}
 	
 	
