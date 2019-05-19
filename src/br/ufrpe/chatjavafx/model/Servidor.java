@@ -177,6 +177,8 @@ public class Servidor extends Thread {
 					System.out.println("BFW 2" + bfwDestinario);
 
 					sendLogin(bfwDestinario, msgCompleta);
+					
+					daoMsgDaSala.deletarMsgVisulizadaSala(usuario);
 
 				} else {
 					send(bfw, msgCompleta);

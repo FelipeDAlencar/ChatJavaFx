@@ -15,7 +15,7 @@ public class TesteJPA {
 		DAOMsgDaSala mSala = DAOMsgDaSala.getInstance();
 
 		Usuario usuario = new Usuario();
-		usuario.setId(4);
-		System.out.println(mSala.buscarMsgOffline(usuario));
+		usuario.setId(3);
+		mSala.deletarMsgVisulizadaSala(usuario);
 	}
 }

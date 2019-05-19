@@ -32,7 +32,7 @@ public class ControllerInicio extends Application implements Initializable {
 
 	}
 
-	@Override
+	@Override	
 	public void start(Stage stage) throws Exception {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Inicial.fxml"));

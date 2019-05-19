@@ -3,6 +3,7 @@ package br.ufrpe.chatjavafx.model.dao;
 import java.util.ArrayList;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import br.ufrpe.chatjavafx.jpa.ConnectionFactory;
@@ -85,5 +86,26 @@ public class DAOMsgDaSala {
 			em.close();
 		}
 		return msgDaSala;
+	}
+	
+	public void deletarMsgVisulizadaSala(Usuario usuario) {
+		EntityManager em = ConnectionFactory.getInstance().getConnection();
+
+		
+		try {
+			
+			em.getTransaction().begin();
+			Query query = em
+					.createQuery("delete from MensagensDaSala m where m.usuarioOff = :usuarioOff");
+			query.setParameter("usuarioOff", usuario).executeUpdate();
+			em.getTransaction().commit();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		} finally {
+			em.close();
+		}
+		
 	}
 }
