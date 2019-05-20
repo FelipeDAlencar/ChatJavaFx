@@ -16,7 +16,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class ControllerInicio extends Application implements Initializable {
-	
+	 
 	
 	@FXML
 	private JFXButton btnServidor;

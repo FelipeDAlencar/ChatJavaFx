@@ -7,15 +7,21 @@ import javax.persistence.EntityManager;
 
 import br.ufrpe.chatjavafx.jpa.ConnectionFactory;
 import br.ufrpe.chatjavafx.model.dao.DAOMsgDaSala;
+import br.ufrpe.chatjavafx.model.dao.DAOMsgPrivada;
 import br.ufrpe.chatjavafx.model.dao.DAOUsuario;
 
 public class TesteJPA {
 	public static void main(String[] args) {
 
-		DAOMsgDaSala mSala = DAOMsgDaSala.getInstance();
-
+		DAOMsgPrivada msgPrivada = DAOMsgPrivada.getInstance();
+		
 		Usuario usuario = new Usuario();
-		usuario.setId(3);
-		mSala.deletarMsgVisulizadaSala(usuario);
+		usuario.setId(6);
+		
+		System.out.println(msgPrivada.buscarMsgOffline(usuario));
+		
+
+		
+		
 	}
 }

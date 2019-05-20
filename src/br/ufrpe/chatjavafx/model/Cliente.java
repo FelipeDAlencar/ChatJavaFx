@@ -42,6 +42,7 @@ public class Cliente {
 	public static final String SAIR = "--SAIR--";
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
 	public static final String RECUPERAR_MENSAGENS_OFFLINE = "RECUPERAR_MENSAGENS_OFFLINE";
+	public static final String R_M_O_P = "R_M_O_P";
 
 	private Socket socket;
 	private OutputStream ou;
@@ -132,6 +133,7 @@ public class Cliente {
 								msg = msg.replace("\n", "");
 
 								enviarMensagem(login + " - " + RECUPERAR_MENSAGENS_OFFLINE);
+								//enviarMensagem(login + " - " + R_M_O_P);
 
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
 								lvOlnine.setItems(ob);
@@ -153,66 +155,26 @@ public class Cliente {
 								meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(msg + "\r\n");
 
 							} else if (msg.contains(REQUISITAR_PRIVADO)) {
-								String minhaMsg = msg;
-								Task<Void> taskAtualizar = new Task<Void>() {
-									@Override
-									protected Void call() throws Exception {
-										Platform.runLater(new Runnable() {
-
-											@Override
-											public void run() {
-
-												try {
-
-													System.out.println("Requisição" + minhaMsg);
-													String nomeTab = minhaMsg.split("-")[2];
-													Tab tab = new Tab("+" + nomeTab);
-													FXMLLoader loader = new FXMLLoader();
-													loader.setLocation(getClass()
-															.getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
-													Parent root;
-													root = loader.load();
-													tab.setContent(root);
-													meuControllerCliente.getTabPane().getTabs().add(tab);
-													meuControllerCliente.getTabPane().getSelectionModel().select(tab);
-
-													meuControllerCliente.setControllerPrivado1(loader.getController());
-													meuControllerCliente.getControllerPrivado1()
-															.setCliente(meuControllerCliente.getCliente());
-													meuControllerCliente.getControllerPrivado1()
-															.setClienteDestino(nomeTab);
-													meuControllerCliente.getControllerPrivado1().setNome(login);
-
-													// cliente.enviarMensagem(nome + "-" + " Privado:" + " - " +
-													// clienteTabela + " - " + REQUISITAR_PRIVADO );
-													meuControllerCliente.getControllerPrivado1().getTaTexto()
-															.appendText(minhaMsg + "\r\n");
-
-												} catch (IOException e) {
-													// TODO Auto-generated catch block
-													e.printStackTrace();
-												}
-
-											}
-
-										});
-										return null;
-
-									}
-								};
-
-								Thread thread = new Thread(taskAtualizar);
-								thread.setDaemon(true);
-								thread.start();
-
+								RequisicaoDePrivado(msg);
 							} else if (msg.contains(CASDATRAR) && msg.contains(LOGIN_ACEITO)) {
 
 							} else if (msg.contains(SAIR)) {
+								msg = msg.replace(SAIR, "");
+								msg = msg.trim();
+
+								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
+								lvOlnine.setItems(ob);
 
 							} else if (msg.contains(RECUPERAR_MENSAGENS_OFFLINE)) {
 								msg = msg.replace(login, "");
 								msg = msg.replace(RECUPERAR_MENSAGENS_OFFLINE, "");
 								taTexto.appendText(msg.trim() + "\r\n");
+
+							} else if (msg.contains(R_M_O_P)) {
+								msg = msg.replace(login, "");
+								msg = msg.replace(R_M_O_P, "");
+								RequisicaoDePrivadoOff(msg.trim() + "\r\n");
+
 							} else {
 								taTexto.appendText(msg + "\r\n");
 							}
@@ -239,7 +201,7 @@ public class Cliente {
 
 				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)
 						|| msg.contains(REQUISITAR_PRIVADO) || msg.contains(CASDATRAR) || msg.contains(SAIR)
-						|| msg.contains(ULTIMO_ONLINE) || msg.contains(RECUPERAR_MENSAGENS_OFFLINE)) {
+						|| msg.contains(ULTIMO_ONLINE) || msg.contains(RECUPERAR_MENSAGENS_OFFLINE) || msg.contains(R_M_O_P)) {
 					bfw.write(msg + "\r\n");
 				} else if (msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");
@@ -352,6 +314,101 @@ public class Cliente {
 
 		taskAtualizar = null;
 		System.gc();
+	}
+
+	public void RequisicaoDePrivado(String msg) {
+		String minhaMsg = msg;
+		Task<Void> taskAtualizar = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+
+						try {
+
+							System.out.println("Requisição" + minhaMsg);
+							String nomeTab = minhaMsg.split("-")[2];
+							Tab tab = new Tab("+" + nomeTab);
+							FXMLLoader loader = new FXMLLoader();
+							loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
+							Parent root;
+							root = loader.load();
+							tab.setContent(root);
+							meuControllerCliente.getTabPane().getTabs().add(tab);
+							meuControllerCliente.getTabPane().getSelectionModel().select(tab);
+
+							meuControllerCliente.setControllerPrivado1(loader.getController());
+							meuControllerCliente.getControllerPrivado1().setCliente(meuControllerCliente.getCliente());
+							meuControllerCliente.getControllerPrivado1().setClienteDestino(nomeTab);
+							meuControllerCliente.getControllerPrivado1().setNome(login);
+
+							// cliente.enviarMensagem(nome + "-" + " Privado:" + " - " +
+							// clienteTabela + " - " + REQUISITAR_PRIVADO );
+							meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(minhaMsg + "\r\n");
+
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
+
+				});
+				return null;
+
+			}
+		};
+
+		Thread thread = new Thread(taskAtualizar);
+		thread.setDaemon(true);
+		thread.start();
+
+	}
+
+	public void RequisicaoDePrivadoOff(String msg) {
+		String minhaMsg = msg;
+		Task<Void> taskAtualizar = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+
+						try {
+
+							Tab tab = new Tab("Mensagens Privadas Recebidas");
+							FXMLLoader loader = new FXMLLoader();
+							loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
+							Parent root;
+							root = loader.load();
+							tab.setContent(root);
+							meuControllerCliente.getTabPane().getTabs().add(tab);
+							meuControllerCliente.getTabPane().getSelectionModel().select(tab);
+
+							meuControllerCliente.setControllerPrivado1(loader.getController());
+
+							meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(minhaMsg + "\r\n");
+
+						} catch (IOException e) {
+
+							e.printStackTrace();
+						}
+
+					}
+
+				});
+				return null;
+
+			}
+		};
+
+		Thread thread = new Thread(taskAtualizar);
+		thread.setDaemon(true);
+		thread.start();
+
 	}
 
 	public BufferedWriter getBfw() {
