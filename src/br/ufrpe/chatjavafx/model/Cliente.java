@@ -136,9 +136,28 @@ public class Cliente {
 								enviarMensagem(login + " - " + R_M_O_P);
 
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
-								lvOlnine.setItems(ob);
+								Task<Void> task = new Task<Void>() {
+									protected Void call() throws Exception {
+										Platform.runLater(new Runnable() {
 
-								logado = true;
+											@Override
+											public void run() {
+												lvOlnine.setItems(ob);
+												meuControllerCliente.getMeuStage().show();
+
+											}
+
+										});
+
+										return null;
+									};
+								};
+
+								Thread thread = new Thread(task);
+								thread.setDaemon(true);
+								thread.start();
+
+								
 							} else if (msg.contains(ENTROU_NA_SALA)) {
 								System.out.println("Entrou");
 								msg = msg.replace(LOGANDO, "");
@@ -147,7 +166,26 @@ public class Cliente {
 								msg = msg.replace("\n", "");
 
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
-								lvOlnine.setItems(ob);
+
+								Task<Void> task = new Task<Void>() {
+									protected Void call() throws Exception {
+										Platform.runLater(new Runnable() {
+
+											@Override
+											public void run() {
+												lvOlnine.setItems(ob);
+
+											}
+
+										});
+
+										return null;
+									};
+								};
+
+								Thread thread = new Thread(task);
+								thread.setDaemon(true);
+								thread.start();
 							} else if (msg.contains(MSG_PRIVADA)) {
 								msg = msg.replace(MSG_PRIVADA, "");
 								msg = msg.replace(msg.split("-")[1], "");
@@ -163,7 +201,25 @@ public class Cliente {
 								msg = msg.trim();
 
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
-								lvOlnine.setItems(ob);
+								Task<Void> task = new Task<Void>() {
+									protected Void call() throws Exception {
+										Platform.runLater(new Runnable() {
+
+											@Override
+											public void run() {
+												lvOlnine.setItems(ob);
+
+											}
+
+										});
+
+										return null;
+									};
+								};
+
+								Thread thread = new Thread(task);
+								thread.setDaemon(true);
+								thread.start();
 
 							} else if (msg.contains(RECUPERAR_MENSAGENS_OFFLINE)) {
 								msg = msg.replace(login, "");
@@ -172,7 +228,7 @@ public class Cliente {
 
 							} else if (msg.contains(R_M_O_P)) {
 								requisicaoDePrivadoOff(msg);
-								
+
 							} else {
 								taTexto.appendText(msg + "\r\n");
 							}
@@ -199,7 +255,8 @@ public class Cliente {
 
 				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)
 						|| msg.contains(REQUISITAR_PRIVADO) || msg.contains(CASDATRAR) || msg.contains(SAIR)
-						|| msg.contains(ULTIMO_ONLINE) || msg.contains(RECUPERAR_MENSAGENS_OFFLINE) || msg.contains(R_M_O_P)) {
+						|| msg.contains(ULTIMO_ONLINE) || msg.contains(RECUPERAR_MENSAGENS_OFFLINE)
+						|| msg.contains(R_M_O_P)) {
 					bfw.write(msg + "\r\n");
 				} else if (msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");
@@ -368,15 +425,13 @@ public class Cliente {
 	}
 
 	public void requisicaoDePrivadoOff(String msg) {
-		System.out.println("Minha msg " + msg );
-		
+		System.out.println("Minha msg " + msg);
+
 		msg = msg.replace(R_M_O_P, "");
 		msg = msg.replace("-", "\n");
 		msg = msg.replace(login, "");
 		String minhaMsg = msg;
-		
-		
-		
+
 		Task<Void> taskAtualizar = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
@@ -395,12 +450,10 @@ public class Cliente {
 							tab.setContent(root);
 							meuControllerCliente.getTabPane().getTabs().add(tab);
 							meuControllerCliente.getTabPane().getSelectionModel().select(tab);
-							
-							if(meuControllerCliente.getControllerPrivado1() == null) {
+
+							if (meuControllerCliente.getControllerPrivado1() == null) {
 								meuControllerCliente.setControllerPrivado1(loader.getController());
 							}
-							
-							
 
 							meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(minhaMsg + "\r\n");
 
@@ -420,7 +473,7 @@ public class Cliente {
 		Thread thread = new Thread(taskAtualizar);
 		thread.setDaemon(true);
 		thread.start();
-		
+
 	}
 
 	public BufferedWriter getBfw() {

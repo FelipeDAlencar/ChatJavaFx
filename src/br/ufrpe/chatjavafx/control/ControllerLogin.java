@@ -46,11 +46,9 @@ public class ControllerLogin extends Application implements Initializable {
 	@FXML
 	private Label lbCadastrar;
 
-	
-
 	private Cliente cliente;
 
-	private  Stage meuStage;
+	private Stage meuStage;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -86,7 +84,6 @@ public class ControllerLogin extends Application implements Initializable {
 	@FXML
 	void AcaoBtnEntrar(ActionEvent event) throws InterruptedException {
 
-	
 		try {
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/TelaCliente.fxml"));
@@ -112,26 +109,17 @@ public class ControllerLogin extends Application implements Initializable {
 
 			cliente.enviarMensagem(tfLogin.getText() + " " + tfSenha.getText() + " " + LOGANDO);
 
-			Thread.sleep(2000);
+			controllerCliente.setMeuStage(stage);
 
-			if (cliente.isLogado()) {
-				stage.show();
+			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 
-				stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+				@Override
+				public void handle(WindowEvent event) {
+					cliente.enviarMensagem(tfLogin.getText() + " " + tfSenha.getText() + " " + SAIR);
+				}
+			});
 
-					@Override
-					public void handle(WindowEvent event) {
-						cliente.enviarMensagem(tfLogin.getText() + " " + tfSenha.getText() + " " + SAIR);
-					}
-				});
-				
-				meuStage.setIconified(true);
-
-			} else {
-				Alerta alerta = Alerta.getInstace(null);
-				alerta.alertar(AlertType.INFORMATION, "Problema ao tentar logar", "Problema ao tentar logar",
-						"Verifique o seu login e senha");
-			}
+			meuStage.setIconified(true);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -169,13 +157,12 @@ public class ControllerLogin extends Application implements Initializable {
 		launch(args);
 	}
 
-	public  Stage getMeuStage() {
+	public Stage getMeuStage() {
 		return meuStage;
 	}
 
-	public  void setMeuStage(Stage meuStage) {
+	public void setMeuStage(Stage meuStage) {
 		this.meuStage = meuStage;
 	}
 
-	
 }

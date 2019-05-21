@@ -257,6 +257,14 @@ public class ControllerCliente extends Application implements Initializable {
 	public void setControllerPrivado1(ControllerPrivado controllerPrivado1) {
 		this.controllerPrivado1 = controllerPrivado1;
 	}
+
+	public Stage getMeuStage() {
+		return meuStage;
+	}
+
+	public void setMeuStage(Stage meuStage) {
+		this.meuStage = meuStage;
+	}
 	
 
 }
