@@ -14,10 +14,13 @@ public class TesteJPA {
 	public static void main(String[] args) {
 
 		DAOMsgPrivada msgPrivada = DAOMsgPrivada.getInstance();
+		DAOUsuario daoUsuario = DAOUsuario.getInstance();
+		Usuario usuario = daoUsuario.buscarPeloLogin("teste");
 		
-		Usuario usuario = new Usuario();
-		usuario.setId(6);
 		
+		
+		
+		System.out.println(usuario.getId());
 		System.out.println(msgPrivada.buscarMsgOffline(usuario));
 		
 

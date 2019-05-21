@@ -68,7 +68,8 @@ public class ControllerPrivado implements Initializable {
 			if (evt.getCode() == KeyCode.ENTER) {
 
 				cliente.enviarMensagem(nome + ": " + tfMsg.getText() + " - " + clienteDestino + " - " + MSG_PRIVADA);
-
+				tfMsg.setText("");
+				
 			} else {
 
 				cliente.enviarMensagem(MSG_PRIVADA + " - " + clienteDestino + " - " + nome + " - " + " - " + DIGITANDO);
@@ -89,6 +90,7 @@ public class ControllerPrivado implements Initializable {
 			System.exit(0);
 		} else {
 			cliente.enviarMensagem(nome + ": " + tfMsg.getText() + " - " + clienteDestino + " - " + MSG_PRIVADA);
+			tfMsg.setText("");
 		}
 	}
 

@@ -217,6 +217,7 @@ public class Servidor extends Thread {
 					sendLogin(bfwDestinario, msgCompleta);
 
 					daoMsgDaSala.deletarMsgVisulizadaSala(usuario);
+					
 
 				} else if (msgCompleta.contains(R_M_O_P)) {
 					String clienteDestinarario = msgCompleta.split("-")[0];
@@ -226,17 +227,16 @@ public class Servidor extends Thread {
 
 					for (MensagenPrivadas mensagenPrivadas : daoMsgPrivada.buscarMsgOffline(usuario)) {
 						msgCompleta += " - " + mensagenPrivadas.getLoginRemetente().getLogin() + ": "
-								+ mensagenPrivadas.getMsg() + "\n";
+								+ mensagenPrivadas.getMsg();
 					}
-					System.out.println("Mensagem completa " + msgCompleta);
-					BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
-					System.out.println("BFW 2" + bfwDestinario);
-
-					sendLogin(bfwDestinario, msgCompleta);
-
-				}
-
-				else {
+					// System.out.println("Mensagem completa " + msgCompleta);
+					// BufferedWriter bfwDestinario = mapaDeCliente.get(clienteDestinarario.trim());
+					// System.out.println("BFW 2" + bfwDestinario);
+					System.out.println("Minha msg no Servidor " + msgCompleta);
+					sendLogin(bfw, msgCompleta);
+					daoMsgPrivada.deletarMsgVisulizada(usuario);
+				}else {
+					
 					send(bfw, msgCompleta);
 				}
 

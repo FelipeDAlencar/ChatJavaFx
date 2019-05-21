@@ -133,7 +133,7 @@ public class Cliente {
 								msg = msg.replace("\n", "");
 
 								enviarMensagem(login + " - " + RECUPERAR_MENSAGENS_OFFLINE);
-								//enviarMensagem(login + " - " + R_M_O_P);
+								enviarMensagem(login + " - " + R_M_O_P);
 
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
 								lvOlnine.setItems(ob);
@@ -155,7 +155,7 @@ public class Cliente {
 								meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(msg + "\r\n");
 
 							} else if (msg.contains(REQUISITAR_PRIVADO)) {
-								RequisicaoDePrivado(msg);
+								requisicaoDePrivado(msg);
 							} else if (msg.contains(CASDATRAR) && msg.contains(LOGIN_ACEITO)) {
 
 							} else if (msg.contains(SAIR)) {
@@ -171,10 +171,8 @@ public class Cliente {
 								taTexto.appendText(msg.trim() + "\r\n");
 
 							} else if (msg.contains(R_M_O_P)) {
-								msg = msg.replace(login, "");
-								msg = msg.replace(R_M_O_P, "");
-								RequisicaoDePrivadoOff(msg.trim() + "\r\n");
-
+								requisicaoDePrivadoOff(msg);
+								
 							} else {
 								taTexto.appendText(msg + "\r\n");
 							}
@@ -209,8 +207,10 @@ public class Cliente {
 					msg = msg.replace(msg.split("-")[1], "");
 					msg = msg.replaceAll("-", "");
 					meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(msg + "\r\n");
+					System.out.println("Passou aqui 3");
 
 				} else {
+					System.out.println("Passou aqui 2");
 					bfw.write(msg + "\r\n");
 					taTexto.appendText(getNome() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
@@ -316,7 +316,7 @@ public class Cliente {
 		System.gc();
 	}
 
-	public void RequisicaoDePrivado(String msg) {
+	public void requisicaoDePrivado(String msg) {
 		String minhaMsg = msg;
 		Task<Void> taskAtualizar = new Task<Void>() {
 			@Override
@@ -367,8 +367,16 @@ public class Cliente {
 
 	}
 
-	public void RequisicaoDePrivadoOff(String msg) {
+	public void requisicaoDePrivadoOff(String msg) {
+		System.out.println("Minha msg " + msg );
+		
+		msg = msg.replace(R_M_O_P, "");
+		msg = msg.replace("-", "\n");
+		msg = msg.replace(login, "");
 		String minhaMsg = msg;
+		
+		
+		
 		Task<Void> taskAtualizar = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
@@ -387,8 +395,12 @@ public class Cliente {
 							tab.setContent(root);
 							meuControllerCliente.getTabPane().getTabs().add(tab);
 							meuControllerCliente.getTabPane().getSelectionModel().select(tab);
-
-							meuControllerCliente.setControllerPrivado1(loader.getController());
+							
+							if(meuControllerCliente.getControllerPrivado1() == null) {
+								meuControllerCliente.setControllerPrivado1(loader.getController());
+							}
+							
+							
 
 							meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(minhaMsg + "\r\n");
 
@@ -408,7 +420,7 @@ public class Cliente {
 		Thread thread = new Thread(taskAtualizar);
 		thread.setDaemon(true);
 		thread.start();
-
+		
 	}
 
 	public BufferedWriter getBfw() {

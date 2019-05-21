@@ -108,27 +108,40 @@ public class ControllerCliente extends Application implements Initializable {
 	private void selecionouDoTv(String clienteTabela) {
 		if (clienteTabela != null) {
 			try {
-				Tab tab = new Tab(clienteTabela);
-				FXMLLoader loader = new FXMLLoader();
-				loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
-				Parent root = loader.load();
-				tab.setContent(root);
-				tabPane.getTabs().addAll(tab);
-				tabPane.getSelectionModel().select(tab);
 				
+				boolean jaExiste = true;
+				
+				for(Tab tab: tabPane.getTabs()) {
+					if(clienteTabela.equals(tab.getText())) {
+						jaExiste = false;
+					}
+				}
+				
+				
+				if(jaExiste) {
+					Tab tab = new Tab(clienteTabela);
+					FXMLLoader loader = new FXMLLoader();
+					loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
+					Parent root = loader.load();
+					tab.setContent(root);
+					tabPane.getTabs().addAll(tab);
+					tabPane.getSelectionModel().select(tab);
+					
 
 
-				controllerPrivado1 = loader.getController();
-				controllerPrivado1.setCliente(cliente);
-				clienteTabela = clienteTabela.replace("+", "");
-				clienteTabela = clienteTabela.replace("-", "");
-				controllerPrivado1.setClienteDestino(clienteTabela);
-				controllerPrivado1.setNome(nome);
-				
-				
-				cliente.enviarMensagem(clienteTabela + " -  " + " Privado:" + " - " + nome + " - "  + REQUISITAR_PRIVADO  );
-				
+					controllerPrivado1 = loader.getController();
+					controllerPrivado1.setCliente(cliente);
+					clienteTabela = clienteTabela.replace("+", "");
+					clienteTabela = clienteTabela.replace("-", "");
+					controllerPrivado1.setClienteDestino(clienteTabela);
+					controllerPrivado1.setNome(nome);
+					
+					
+					cliente.enviarMensagem(clienteTabela + " -  " + " Privado:" + " - " + nome + " - "  + REQUISITAR_PRIVADO  );
+					
 
+				}
+			
 			} catch (IOException e) {
 				Alerta alerta = Alerta.getInstace(null);
 				alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar arquivo!");
