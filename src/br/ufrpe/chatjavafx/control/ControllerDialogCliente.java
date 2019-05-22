@@ -147,7 +147,7 @@ public class ControllerDialogCliente extends Application implements Initializabl
 
 			controllerCliente.getCliente().setIp(tfIp.getText());
 			controllerCliente.getCliente().setPorta(tfPorta.getText());
-			controllerCliente.getCliente().setNome(tfNome.getText());
+			controllerCliente.getCliente().setLogin(tfNome.getText());
 
 			controllerCliente.getCliente().conectar();
 			Servidor.clientes.add(controllerCliente.getCliente().getBfw());

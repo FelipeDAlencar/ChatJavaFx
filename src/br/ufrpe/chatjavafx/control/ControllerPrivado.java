@@ -23,6 +23,7 @@ public class ControllerPrivado implements Initializable {
 	public static final String NAO_DIGITANDO = "--nao_digitando--";
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
+	public static final String VISUALIZOU = "--VISUALIZOU--";
 
 	@FXML
 	private JFXTextArea taTexto;
@@ -42,24 +43,31 @@ public class ControllerPrivado implements Initializable {
 	@FXML
 	private Label lbUltimoVisualizacao;
 
+	@FXML
+	private Label lbVisualizado;
+
 	private Cliente cliente;
 
 	private String nome;
 
 	private String clienteDestino;
-	
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		// cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
-
+		
 		tfMsg.focusedProperty().addListener((o, old, nval) -> {
+			
+			cliente.enviarMensagem(clienteDestino + " - " + cliente.getLogin() + " - " + VISUALIZOU + " - " + MSG_PRIVADA);
+			lbVisualizado.setText("");
 			if (nval != null) {
-				if(nval.booleanValue()) {
-					cliente.enviarMensagem(" - " + clienteDestino + " - " + "Online" + " - "+ ULTIMO_ONLINE + " - " + MSG_PRIVADA);
-				}else {
+				if (nval.booleanValue()) {
+					cliente.enviarMensagem(
+							" - " + clienteDestino + " - " + "Online" + " - " + ULTIMO_ONLINE + " - " + MSG_PRIVADA);
+				} else {
 					SimpleDateFormat formato = new SimpleDateFormat("dd/MM/YYY hh:MM:ss");
-					cliente.enviarMensagem(" - " + clienteDestino + " - " + "Visto pot ultimo " + formato.format(new Date()) + " - " + ULTIMO_ONLINE + " - " + MSG_PRIVADA);
+					cliente.enviarMensagem(" - " + clienteDestino + " - " + "Visto pot ultimo "
+							+ formato.format(new Date()) + " - " + ULTIMO_ONLINE + " - " + MSG_PRIVADA);
 				}
 			}
 
@@ -69,7 +77,7 @@ public class ControllerPrivado implements Initializable {
 
 				cliente.enviarMensagem(nome + ": " + tfMsg.getText() + " - " + clienteDestino + " - " + MSG_PRIVADA);
 				tfMsg.setText("");
-				
+
 			} else {
 
 				cliente.enviarMensagem(MSG_PRIVADA + " - " + clienteDestino + " - " + nome + " - " + " - " + DIGITANDO);
@@ -158,6 +166,9 @@ public class ControllerPrivado implements Initializable {
 	public void setLbUltimoVisualizacao(Label lbUltimoVisualizacao) {
 		this.lbUltimoVisualizacao = lbUltimoVisualizacao;
 	}
-	
+
+	public Label getLbVisualizado() {
+		return lbVisualizado;
+	}
 
 }

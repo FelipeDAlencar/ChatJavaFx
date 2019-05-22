@@ -43,6 +43,7 @@ public class Servidor extends Thread {
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
 	public static final String RECUPERAR_MENSAGENS_OFFLINE = "RECUPERAR_MENSAGENS_OFFLINE";
 	public static final String R_M_O_P = "R_M_O_P";
+	public static final String VISUALIZOU = "--VISUALIZOU--";
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 	// private static ServerSocket server;
@@ -115,6 +116,17 @@ public class Servidor extends Thread {
 						sendLogin(bfw, msgCompleta + " " + SUCESSO + " " + ENTROU_NA_SALA);
 						send(bfw, msgCompleta + " " + ENTROU_NA_SALA);
 					}
+
+				} else if (msgCompleta.contains(VISUALIZOU) && msgCompleta.contains(MSG_PRIVADA)) {
+					String clienteDestino = msgCompleta.split("-")[0].trim();
+					
+
+					System.out.println("Cliente destino visualizou " + clienteDestino);
+
+					BufferedWriter bfwDestino = mapaDeCliente.get(clienteDestino);
+
+					sendPrivado(bfwDestino, msgCompleta);
+					
 
 				} else if (msgCompleta.contains(MSG_PRIVADA)) {
 					String clienteDestinarario = msgCompleta.split("-")[1];
@@ -217,7 +229,6 @@ public class Servidor extends Thread {
 					sendLogin(bfwDestinario, msgCompleta);
 
 					daoMsgDaSala.deletarMsgVisulizadaSala(usuario);
-					
 
 				} else if (msgCompleta.contains(R_M_O_P)) {
 					String clienteDestinarario = msgCompleta.split("-")[0];
@@ -235,8 +246,8 @@ public class Servidor extends Thread {
 					System.out.println("Minha msg no Servidor " + msgCompleta);
 					sendLogin(bfw, msgCompleta);
 					daoMsgPrivada.deletarMsgVisulizada(usuario);
-				}else {
-					
+				} else {
+
 					send(bfw, msgCompleta);
 				}
 

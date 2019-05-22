@@ -101,7 +101,7 @@ public class ControllerLogin extends Application implements Initializable {
 
 			controllerCliente.getCliente().setIp(tfIp.getText());
 			controllerCliente.getCliente().setPorta("12345");
-			controllerCliente.getCliente().setNome(tfLogin.getText());
+			controllerCliente.getCliente().setLogin(tfLogin.getText());
 			controllerCliente.getCliente().getLbNome().setText(tfLogin.getText());
 
 			cliente.setIp(tfIp.getText());

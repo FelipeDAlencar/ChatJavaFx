@@ -43,6 +43,7 @@ public class Cliente {
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
 	public static final String RECUPERAR_MENSAGENS_OFFLINE = "RECUPERAR_MENSAGENS_OFFLINE";
 	public static final String R_M_O_P = "R_M_O_P";
+	public static final String VISUALIZOU = "--VISUALIZOU--";
 
 	private Socket socket;
 	private OutputStream ou;
@@ -86,7 +87,7 @@ public class Cliente {
 			InputStreamReader inr = new InputStreamReader(in);
 			bfr = new BufferedReader(inr);
 			// lbNome.setText(getNome());
-			System.out.println(getNome());
+			System.out.println(getLogin());
 			bfw.flush();
 
 			escutar();
@@ -118,10 +119,13 @@ public class Cliente {
 						} else {
 							if (msg.contains(MSG_PRIVADA) && msg.contains(DIGITANDO)) {
 								atualizarDigitandoPrivado(msg);
+
 							} else if (msg.contains(MSG_PRIVADA) && msg.contains(NAO_DIGITANDO)) {
 								atualizarDigitandoPrivado(msg);
+
 							} else if (msg.contains(MSG_PRIVADA) && msg.contains(ULTIMO_ONLINE)) {
 								atualizarVistoPorUltimo(msg);
+
 							} else if (msg.contains(DIGITANDO)) {
 								atualizarDigitando(msg);
 							} else if (msg.contains(NAO_DIGITANDO)) {
@@ -157,7 +161,6 @@ public class Cliente {
 								thread.setDaemon(true);
 								thread.start();
 
-								
 							} else if (msg.contains(ENTROU_NA_SALA)) {
 								System.out.println("Entrou");
 								msg = msg.replace(LOGANDO, "");
@@ -186,7 +189,12 @@ public class Cliente {
 								Thread thread = new Thread(task);
 								thread.setDaemon(true);
 								thread.start();
-							} else if (msg.contains(MSG_PRIVADA)) {
+							} else if (msg.contains(VISUALIZOU) && msg.contains(MSG_PRIVADA)) {
+								atualizarVisualizado("Visualizou");
+
+							}
+
+							else if (msg.contains(MSG_PRIVADA)) {
 								msg = msg.replace(MSG_PRIVADA, "");
 								msg = msg.replace(msg.split("-")[1], "");
 								msg = msg.replaceAll("-", "");
@@ -238,6 +246,7 @@ public class Cliente {
 					}
 				}
 			}
+
 		};
 		Thread threadEscutar = new Thread(taskEscutar);
 		threadEscutar.setDaemon(true);
@@ -258,6 +267,9 @@ public class Cliente {
 						|| msg.contains(ULTIMO_ONLINE) || msg.contains(RECUPERAR_MENSAGENS_OFFLINE)
 						|| msg.contains(R_M_O_P)) {
 					bfw.write(msg + "\r\n");
+				} else if (msg.contains(VISUALIZOU)) {
+					meuControllerCliente.getControllerPrivado1().getLbVisualizado().setText("");
+					bfw.write(msg + "\r\n");
 				} else if (msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");
 					msg = msg.replace(MSG_PRIVADA, "");
@@ -269,7 +281,7 @@ public class Cliente {
 				} else {
 					System.out.println("Passou aqui 2");
 					bfw.write(msg + "\r\n");
-					taTexto.appendText(getNome() + ": " + tfMsg.getText() + "\r\n");
+					taTexto.appendText(getLogin() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
 				}
 
@@ -476,6 +488,31 @@ public class Cliente {
 
 	}
 
+	public void atualizarVisualizado(String msg) {
+		String minhaMsg = msg;
+		Task<Void> taskAtualizar = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+
+						meuControllerCliente.getControllerPrivado1().getLbVisualizado().setText(minhaMsg);
+
+					}
+
+				});
+				return null;
+			}
+		};
+
+		Thread thread = new Thread(taskAtualizar);
+		thread.setDaemon(true);
+		thread.start();
+
+	}
+
 	public BufferedWriter getBfw() {
 		return bfw;
 	}
@@ -532,12 +569,12 @@ public class Cliente {
 		this.porta = porta;
 	}
 
-	public String getNome() {
+	public String getLogin() {
 		return login;
 	}
 
-	public void setNome(String nome) {
-		this.login = nome;
+	public void setLogin(String login) {
+		this.login = login;
 	}
 
 	public Label getLbNome() {
