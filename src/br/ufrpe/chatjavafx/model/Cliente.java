@@ -42,7 +42,7 @@ public class Cliente {
 	public static final String SAIR = "--SAIR--";
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
 	public static final String RECUPERAR_MENSAGENS_OFFLINE = "RECUPERAR_MENSAGENS_OFFLINE";
-	public static final String R_M_O_P = "R_M_O_P";
+	public static final String RECUPERAR_MENSAGENS_OFFLINE_PRIVADO = "R_M_O_P";
 	public static final String VISUALIZOU_PRIVADO = "--VISUALIZOU--";
 	public static final String VISUALIZOU_NA_SALA = "--VISUALIZOU_NA_SALA--";
 
@@ -87,8 +87,8 @@ public class Cliente {
 			InputStream in = socket.getInputStream();
 			InputStreamReader inr = new InputStreamReader(in);
 			bfr = new BufferedReader(inr);
-			// lbNome.setText(getNome());
-			System.out.println(getLogin());
+			
+			
 			bfw.flush();
 
 			escutar();
@@ -138,7 +138,7 @@ public class Cliente {
 								msg = msg.replace("\n", "");
 
 								enviarMensagem(login + " - " + RECUPERAR_MENSAGENS_OFFLINE);
-								enviarMensagem(login + " - " + R_M_O_P);
+								enviarMensagem(login + " - " + RECUPERAR_MENSAGENS_OFFLINE_PRIVADO);
 
 								ObservableList<String> ob = FXCollections.observableArrayList(msg.split(" "));
 								Task<Void> task = new Task<Void>() {
@@ -163,7 +163,7 @@ public class Cliente {
 								thread.start();
 
 							} else if (msg.contains(ENTROU_NA_SALA)) {
-								System.out.println("Entrou");
+								
 								msg = msg.replace(LOGANDO, "");
 								msg = msg.replace(SUCESSO, "");
 								msg = msg.replace(ENTROU_NA_SALA, "");
@@ -235,7 +235,7 @@ public class Cliente {
 								msg = msg.replace(RECUPERAR_MENSAGENS_OFFLINE, "");
 								taTexto.appendText(msg.trim() + "\r\n");
 
-							} else if (msg.contains(R_M_O_P)) {
+							} else if (msg.contains(RECUPERAR_MENSAGENS_OFFLINE_PRIVADO)) {
 								requisicaoDePrivadoOff(msg);
 
 							} else if (msg.contains(VISUALIZOU_NA_SALA)) {
@@ -271,7 +271,7 @@ public class Cliente {
 				if (msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(LOGANDO)
 						|| msg.contains(REQUISITAR_PRIVADO) || msg.contains(CASDATRAR) || msg.contains(SAIR)
 						|| msg.contains(ULTIMO_ONLINE) || msg.contains(RECUPERAR_MENSAGENS_OFFLINE)
-						|| msg.contains(R_M_O_P)) {
+						|| msg.contains(RECUPERAR_MENSAGENS_OFFLINE_PRIVADO)) {
 					bfw.write(msg + "\r\n");
 				} else if (msg.contains(VISUALIZOU_PRIVADO)) {
 					meuControllerCliente.getControllerPrivado1().getLbVisualizado().setText("");
@@ -284,10 +284,10 @@ public class Cliente {
 					msg = msg.replace(msg.split("-")[1], "");
 					msg = msg.replaceAll("-", "");
 					meuControllerCliente.getControllerPrivado1().getTaTexto().appendText(msg + "\r\n");
-					System.out.println("Passou aqui 3");
+				
 
 				} else {
-					System.out.println("Passou aqui 2");
+					
 					bfw.write(msg + "\r\n");
 					taTexto.appendText(getLogin() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
@@ -406,7 +406,7 @@ public class Cliente {
 
 						try {
 
-							System.out.println("Requisição" + minhaMsg);
+							
 							String nomeTab = minhaMsg.split("-")[2];
 							Tab tab = new Tab("+" + nomeTab);
 							FXMLLoader loader = new FXMLLoader();
@@ -446,9 +446,9 @@ public class Cliente {
 	}
 
 	public void requisicaoDePrivadoOff(String msg) {
-		System.out.println("Minha msg " + msg);
+		
 
-		msg = msg.replace(R_M_O_P, "");
+		msg = msg.replace(RECUPERAR_MENSAGENS_OFFLINE_PRIVADO, "");
 		msg = msg.replace("-", "\n");
 		msg = msg.replace(login, "");
 		String minhaMsg = msg;

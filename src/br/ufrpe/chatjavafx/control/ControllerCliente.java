@@ -18,7 +18,6 @@ import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 
 import br.ufrpe.chatjavafx.model.Cliente;
-import br.ufrpe.chatjavafx.model.ComunicacaoPrivada;
 import br.ufrpe.chatjavafx.model.Servidor;
 import br.ufrpe.chatjavafx.model.Usuario;
 import br.ufrpe.chatjavafx.model.dao.DAOUsuario;
@@ -201,10 +200,6 @@ public class ControllerCliente extends Application implements Initializable {
 		return nome;
 	}
 
-	public static void main(String[] args) {
-		launch(args);
-
-	}
 
 	public String getNome() {
 		return nome;

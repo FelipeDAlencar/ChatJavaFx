@@ -125,7 +125,7 @@ public class ControllerLogin extends Application implements Initializable {
 			e.printStackTrace();
 		}
 
-		System.out.println("cliente" + cliente.isLogado());
+		
 
 	}
 
@@ -153,9 +153,7 @@ public class ControllerLogin extends Application implements Initializable {
 
 	}
 
-	public static void main(String[] args) {
-		launch(args);
-	}
+	
 
 	public Stage getMeuStage() {
 		return meuStage;
