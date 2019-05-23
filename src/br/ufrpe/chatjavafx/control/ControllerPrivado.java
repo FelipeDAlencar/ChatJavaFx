@@ -23,7 +23,7 @@ public class ControllerPrivado implements Initializable {
 	public static final String NAO_DIGITANDO = "--nao_digitando--";
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
-	public static final String VISUALIZOU = "--VISUALIZOU--";
+	public static final String VISUALIZOU_PRIVADO = "--VISUALIZOU--";
 
 	@FXML
 	private JFXTextArea taTexto;
@@ -58,7 +58,7 @@ public class ControllerPrivado implements Initializable {
 		
 		tfMsg.focusedProperty().addListener((o, old, nval) -> {
 			
-			cliente.enviarMensagem(clienteDestino + " - " + cliente.getLogin() + " - " + VISUALIZOU + " - " + MSG_PRIVADA);
+			cliente.enviarMensagem(clienteDestino + " - " + cliente.getLogin() + " - " + VISUALIZOU_PRIVADO + " - " + MSG_PRIVADA);
 			lbVisualizado.setText("");
 			if (nval != null) {
 				if (nval.booleanValue()) {

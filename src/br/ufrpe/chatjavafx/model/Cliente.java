@@ -43,7 +43,8 @@ public class Cliente {
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
 	public static final String RECUPERAR_MENSAGENS_OFFLINE = "RECUPERAR_MENSAGENS_OFFLINE";
 	public static final String R_M_O_P = "R_M_O_P";
-	public static final String VISUALIZOU = "--VISUALIZOU--";
+	public static final String VISUALIZOU_PRIVADO = "--VISUALIZOU--";
+	public static final String VISUALIZOU_NA_SALA = "--VISUALIZOU_NA_SALA--";
 
 	private Socket socket;
 	private OutputStream ou;
@@ -189,7 +190,7 @@ public class Cliente {
 								Thread thread = new Thread(task);
 								thread.setDaemon(true);
 								thread.start();
-							} else if (msg.contains(VISUALIZOU) && msg.contains(MSG_PRIVADA)) {
+							} else if (msg.contains(VISUALIZOU_PRIVADO) && msg.contains(MSG_PRIVADA)) {
 								atualizarVisualizado("Visualizou");
 
 							}
@@ -237,6 +238,11 @@ public class Cliente {
 							} else if (msg.contains(R_M_O_P)) {
 								requisicaoDePrivadoOff(msg);
 
+							} else if (msg.contains(VISUALIZOU_NA_SALA)) {
+
+								String quemVisualizou = msg.split("-")[0].trim();
+								atualizarVisualizadoNaSala(quemVisualizou + ", ");
+
 							} else {
 								taTexto.appendText(msg + "\r\n");
 							}
@@ -267,8 +273,10 @@ public class Cliente {
 						|| msg.contains(ULTIMO_ONLINE) || msg.contains(RECUPERAR_MENSAGENS_OFFLINE)
 						|| msg.contains(R_M_O_P)) {
 					bfw.write(msg + "\r\n");
-				} else if (msg.contains(VISUALIZOU)) {
+				} else if (msg.contains(VISUALIZOU_PRIVADO)) {
 					meuControllerCliente.getControllerPrivado1().getLbVisualizado().setText("");
+					bfw.write(msg + "\r\n");
+				} else if (msg.contains(VISUALIZOU_NA_SALA)) {
 					bfw.write(msg + "\r\n");
 				} else if (msg.contains(MSG_PRIVADA)) {
 					bfw.write(msg + "\r\n");
@@ -283,6 +291,7 @@ public class Cliente {
 					bfw.write(msg + "\r\n");
 					taTexto.appendText(getLogin() + ": " + tfMsg.getText() + "\r\n");
 					tfMsg.setText("");
+					
 				}
 
 				System.out.println(msg);
@@ -499,6 +508,33 @@ public class Cliente {
 					public void run() {
 
 						meuControllerCliente.getControllerPrivado1().getLbVisualizado().setText(minhaMsg);
+
+					}
+
+				});
+				return null;
+			}
+		};
+
+		Thread thread = new Thread(taskAtualizar);
+		thread.setDaemon(true);
+		thread.start();
+
+	}
+
+	public void atualizarVisualizadoNaSala(String msg) {
+		String minhaMsg = msg;
+		Task<Void> taskAtualizar = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				Platform.runLater(new Runnable() {
+
+					@Override
+					public void run() {
+						if (!(meuControllerCliente.getLbVisualizou().getText().contains(minhaMsg))) {
+							meuControllerCliente.getLbVisualizou()
+									.setText(meuControllerCliente.getLbVisualizou().getText() + minhaMsg);
+						}
 
 					}
 

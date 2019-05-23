@@ -43,7 +43,8 @@ public class Servidor extends Thread {
 	public static final String ULTIMO_ONLINE = "ULTIMO_ONLINE";
 	public static final String RECUPERAR_MENSAGENS_OFFLINE = "RECUPERAR_MENSAGENS_OFFLINE";
 	public static final String R_M_O_P = "R_M_O_P";
-	public static final String VISUALIZOU = "--VISUALIZOU--";
+	public static final String VISUALIZOU_PRIVADO = "--VISUALIZOU--";
+	public static final String VISUALIZOU_NA_SALA = "--VISUALIZOU_NA_SALA--";
 
 	public static ArrayList<BufferedWriter> clientes = new ArrayList<>();
 	// private static ServerSocket server;
@@ -117,16 +118,14 @@ public class Servidor extends Thread {
 						send(bfw, msgCompleta + " " + ENTROU_NA_SALA);
 					}
 
-				} else if (msgCompleta.contains(VISUALIZOU) && msgCompleta.contains(MSG_PRIVADA)) {
+				} else if (msgCompleta.contains(VISUALIZOU_PRIVADO) && msgCompleta.contains(MSG_PRIVADA)) {
 					String clienteDestino = msgCompleta.split("-")[0].trim();
-					
 
 					System.out.println("Cliente destino visualizou " + clienteDestino);
 
 					BufferedWriter bfwDestino = mapaDeCliente.get(clienteDestino);
 
 					sendPrivado(bfwDestino, msgCompleta);
-					
 
 				} else if (msgCompleta.contains(MSG_PRIVADA)) {
 					String clienteDestinarario = msgCompleta.split("-")[1];
@@ -246,6 +245,8 @@ public class Servidor extends Thread {
 					System.out.println("Minha msg no Servidor " + msgCompleta);
 					sendLogin(bfw, msgCompleta);
 					daoMsgPrivada.deletarMsgVisulizada(usuario);
+				} else if (msgCompleta.contains(VISUALIZOU_NA_SALA)) {
+					send(bfw, msgCompleta);
 				} else {
 
 					send(bfw, msgCompleta);
@@ -293,7 +294,7 @@ public class Servidor extends Thread {
 					bw.flush();
 
 					if (!(msg.contains(DIGITANDO) || msg.contains(NAO_DIGITANDO) || msg.contains(ENTROU_NA_SALA)
-							|| msg.contains(SAIR))) {
+							|| msg.contains(SAIR) || msg.contains(VISUALIZOU_NA_SALA))) {
 						String login = msg.split(":")[0];
 						String msgReal = msg.split(":")[1];
 

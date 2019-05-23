@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import java.util.ResourceBundle;
 
@@ -42,7 +44,8 @@ import javafx.stage.Stage;
 public class ControllerCliente extends Application implements Initializable {
 	public static final String MSG_PRIVADA = "MSG_PRIVADA";
 	public static final String REQUISITAR_PRIVADO = "REQUISITAR_PRIVADO";
-	
+	public static final String VISUALIZOU_NA_SALA = "--VISUALIZOU_NA_SALA--";
+
 	@FXML
 	private Label lbDigitando;
 
@@ -70,15 +73,23 @@ public class ControllerCliente extends Application implements Initializable {
 	@FXML
 	private JFXTabPane tabPane;
 
+	@FXML
+	private Label lbVisualizou;
+
 	private Cliente cliente;
 	private String nome, ip, porta;
 	private static FXMLLoader loader;
 	public static ArrayList<ControllerCliente> controllerClientes = new ArrayList<>();
 	private ControllerPrivado controllerPrivado1;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		//cliente = new Cliente(lbNome, lbDigitando, taTexto, tfMsg);
-	
+
+		tfMsg.focusedProperty().addListener((o, old, nval) -> {
+
+			cliente.enviarMensagem(cliente.getLogin() + " - " + VISUALIZOU_NA_SALA);
+
+		});
 
 		lvOlnine.getSelectionModel().selectedItemProperty()
 				.addListener((observable, oldValue, newValue) -> selecionouDoTv(newValue));
@@ -87,6 +98,7 @@ public class ControllerCliente extends Application implements Initializable {
 			if (evt.getCode() == KeyCode.ENTER) {
 
 				cliente.enviarMensagem(nome + ": " + tfMsg.getText());
+				lbVisualizou.setText("");
 
 			} else {
 
@@ -100,25 +112,22 @@ public class ControllerCliente extends Application implements Initializable {
 			cliente.enviarMensagem(Cliente.NAO_DIGITANDO);
 
 		});
-		
-		
 
 	}
 
 	private void selecionouDoTv(String clienteTabela) {
 		if (clienteTabela != null) {
 			try {
-				
+
 				boolean jaExiste = true;
-				
-				for(Tab tab: tabPane.getTabs()) {
-					if(clienteTabela.equals(tab.getText())) {
+
+				for (Tab tab : tabPane.getTabs()) {
+					if (clienteTabela.equals(tab.getText())) {
 						jaExiste = false;
 					}
 				}
-				
-				
-				if(jaExiste) {
+
+				if (jaExiste) {
 					Tab tab = new Tab(clienteTabela);
 					FXMLLoader loader = new FXMLLoader();
 					loader.setLocation(getClass().getResource("/br/ufrpe/chatjavafx/view/Privado.fxml"));
@@ -126,8 +135,6 @@ public class ControllerCliente extends Application implements Initializable {
 					tab.setContent(root);
 					tabPane.getTabs().addAll(tab);
 					tabPane.getSelectionModel().select(tab);
-					
-
 
 					controllerPrivado1 = loader.getController();
 					controllerPrivado1.setCliente(cliente);
@@ -135,13 +142,12 @@ public class ControllerCliente extends Application implements Initializable {
 					clienteTabela = clienteTabela.replace("-", "");
 					controllerPrivado1.setClienteDestino(clienteTabela);
 					controllerPrivado1.setNome(nome);
-					
-					
-					cliente.enviarMensagem(clienteTabela + " -  " + " Privado:" + " - " + nome + " - "  + REQUISITAR_PRIVADO  );
-					
+
+					cliente.enviarMensagem(
+							clienteTabela + " -  " + " Privado:" + " - " + nome + " - " + REQUISITAR_PRIVADO);
 
 				}
-			
+
 			} catch (IOException e) {
 				Alerta alerta = Alerta.getInstace(null);
 				alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar arquivo!");
@@ -173,11 +179,12 @@ public class ControllerCliente extends Application implements Initializable {
 
 		} else {
 			cliente.enviarMensagem(nome + ": " + tfMsg.getText());
+			lbVisualizou.setText("");
 		}
 	}
 
 	public void novaTab() {
-		
+
 	}
 
 	public void sair() throws IOException {
@@ -249,7 +256,6 @@ public class ControllerCliente extends Application implements Initializable {
 		return tabPane;
 	}
 
-
 	public ControllerPrivado getControllerPrivado1() {
 		return controllerPrivado1;
 	}
@@ -265,6 +271,13 @@ public class ControllerCliente extends Application implements Initializable {
 	public void setMeuStage(Stage meuStage) {
 		this.meuStage = meuStage;
 	}
-	
+
+	public Label getLbVisualizou() {
+		return lbVisualizou;
+	}
+
+	public void setLbVisualizou(Label lbVisualizou) {
+		this.lbVisualizou = lbVisualizou;
+	}
 
 }
