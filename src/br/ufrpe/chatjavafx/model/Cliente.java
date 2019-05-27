@@ -471,7 +471,7 @@ public class Cliente {
 							root = loader.load();
 							tab.setContent(root);
 							meuControllerCliente.getTabPane().getTabs().add(tab);
-							meuControllerCliente.getTabPane().getSelectionModel().select(tab);
+							
 
 							if (meuControllerCliente.getControllerPrivado1() == null) {
 								meuControllerCliente.setControllerPrivado1(loader.getController());
