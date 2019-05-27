@@ -7,29 +7,31 @@ import javafx.scene.control.Alert.AlertType;
 
 public class Alerta extends Alert {
 
-	 private static Alerta alert;
+	private static Alerta alert;
 
-	    public static Alerta getInstace(AlertType tipo) {
-	        if (alert == null) {
-	            return alert = new Alerta(tipo);
-	        }
+	public static Alerta getInstace(AlertType tipo) {
+		if (alert == null) {
+			return alert = new Alerta(tipo);
+		}
 
-	        return alert;
-	    }
+		return alert;
+	}
 
-	    private Alerta(AlertType alertType) {
-	        super(alertType);
-	    }
+	private Alerta(AlertType alertType) {
+		super(alertType);
+	}
 
-	    public void alertar(AlertType tipo, String titulo, String cabecalho, String conteudo ) {
-	        Platform.runLater(()->{
-	        	
-	        	alert.setAlertType(tipo);
-		        alert.setTitle(titulo);
-		        alert.setHeaderText(cabecalho);
-		        alert.setContentText(conteudo);
-		        alert.showAndWait();
-		        
-	        });
-	    }
+	public void alertar(AlertType tipo, String titulo, String cabecalho, String conteudo) {
+		Platform.runLater(() -> {
+			try {
+				alert.setAlertType(tipo);
+				alert.setTitle(titulo);
+				alert.setHeaderText(cabecalho);
+				alert.setContentText(conteudo);
+				alert.showAndWait();
+			} catch (IllegalStateException e) {
+
+			}
+		});
+	}
 }

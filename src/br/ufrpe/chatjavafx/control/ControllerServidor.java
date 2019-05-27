@@ -102,7 +102,7 @@ public class ControllerServidor extends Application implements Initializable {
 
 		} catch (IOException e) {
 			Alerta alerta = Alerta.getInstace(AlertType.WARNING);
-			alerta.alertar(AlertType.WARNING, "Atenção", "Antenção", "Erro ao tentar carregar arquivo!");
+			alerta.alertar(AlertType.WARNING, "Atenção", "Porta em uso", "Por favor escolha outra porta.");
 		}
 
 	}

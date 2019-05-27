@@ -299,9 +299,10 @@ public class Cliente {
 			}
 			bfw.flush();
 
-		} catch (IOException e) {
+		} catch (IOException | NullPointerException e) {
 			Alerta alerta = Alerta.getInstace(AlertType.NONE);
-			alerta.alertar(AlertType.WARNING, "Atenção", "Atenção", "Erro ao tentar carregar o arquivo!");
+			alerta.alertar(AlertType.WARNING, "Atenção", "Servidor offline ou endereço incorreto", "Certifique-se de que haja apenas números no IP e que "
+					+ "\ntenha um servidor rodando nesse endereço!");
 		}
 	}
 
